@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a2e">
+<title>Falamigo Kids - IA Evolutiva v3.4</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; height: 100%; font-family: Arial, sans-serif; background: #0d0d1a; color: #fff; overflow: hidden; }
+
+#tela-entrada { width: 100%; height: 100%; background: #1a1a3e; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: fixed; top: 0; left: 0; z-index: 9999; }
+.logo-emoji { font-size: 80px; }
+.logo-titulo { font-size: 42px; font-weight: 800; color: #e94560; margin-top: 15px; }
+.logo-sub { font-size: 16px; color: #a0a0b8; margin-top: 8px; }
+.logo-desc { font-size: 14px; color: #00d9ff; margin-top: 5px; }
+.btn-entrar { display: block; width: 260px; margin: 40px auto 0; padding: 20px; border: none; border-radius: 20px; font-size: 20px; font-weight: 700; color: white; background: #e94560; cursor: pointer; -webkit-appearance: none; }
+.btn-entrar:active { background: #2ecc71; }
+.versao-info { margin-top: 30px; font-size: 12px; color: #666; }
+
+#app-principal { display: none; width: 100%; height: 100%; position: fixed; top: 0; left: 0; }
+.header { background: #0a0a1f; padding: 12px; text-align: center; border-bottom: 1px solid #333; }
+.header-titulo { font-size: 22px; font-weight: 800; color: #e94560; }
+.header-sub { font-size: 11px; color: #a0a0b8; margin-top: 2px; }
+.barra-fala { background: #14142b; padding: 10px; display: flex; gap: 8px; border-bottom: 1px solid #333; }
+.display-fala { flex: 1; background: #1a1a2e; border: 1px solid #333; border-radius: 16px; padding: 12px; font-size: 15px; font-weight: 600; color: #fff; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 50px; }
+.btn-acao { width: 50px; height: 50px; border: none; border-radius: 14px; font-size: 20px; cursor: pointer; -webkit-appearance: none; }
+.btn-falar { background: #e94560; color: white; }
+.btn-limpar { background: #333; color: white; }
+
+.painel-principal { display: flex; height: calc(100% - 100px); }
+.abas-lateral { width: 70px; background: #0a0a1f; padding: 5px 2px; overflow-y: auto; border-right: 1px solid #333; }
+.aba-btn { width: 100%; padding: 8px 2px; margin-bottom: 4px; border: none; border-radius: 10px; background: transparent; color: #888; font-size: 9px; cursor: pointer; -webkit-appearance: none; }
+.aba-btn .emoji { font-size: 20px; display: block; }
+.aba-btn.ativa { background: #1a1a2e; color: #e94560; }
+.area-conteudo { flex: 1; overflow-y: auto; padding: 10px; background: #0d0d1a; }
+
+.grid-botoes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.btn-card { background: #1a1a2e; border: 1px solid #333; border-radius: 15px; padding: 15px 8px; text-align: center; cursor: pointer; font-size: 12px; font-weight: bold; color: #fff; width: 100%; -webkit-appearance: none; }
+.btn-card .emoji-card { font-size: 32px; display: block; margin-bottom: 5px; }
+.sos-alerta { background: #e94560 !important; color: white !important; grid-column: 1 / -1; padding: 18px !important; font-size: 14px !important; }
+
+.aba-ia { padding: 10px; }
+.ia-titulo { font-size: 18px; font-weight: 700; color: #9b59b6; text-align: center; margin-bottom: 5px; }
+.ia-sub { font-size: 12px; color: #a0a0b8; text-align: center; margin-bottom: 10px; }
+.chat-container { background: #14142b; border: 1px solid #333; border-radius: 15px; height: 250px; overflow-y: auto; padding: 10px; margin-bottom: 10px; }
+.chat-msg { margin-bottom: 10px; max-width: 85%; }
+.chat-msg.ia-msg { margin-left: 0; margin-right: auto; }
+.chat-msg.user-msg { margin-left: auto; margin-right: 0; }
+.chat-bubble { padding: 10px 14px; border-radius: 15px; font-size: 13px; line-height: 1.4; }
+.ia-msg .chat-bubble { background: #9b59b6; color: white; }
+.user-msg .chat-bubble { background: #1a1a2e; border: 1px solid #333; color: #fff; }
+.chat-remetente { font-size: 10px; font-weight: 700; margin-bottom: 3px; opacity: 0.7; }
+.ia-input-area { display: flex; gap: 8px; margin-bottom: 10px; }
+.ia-input { flex: 1; background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 10px 14px; color: #fff; font-size: 13px; }
+.btn-enviar-ia { background: #9b59b6; color: white; border: none; border-radius: 12px; padding: 10px 16px; font-size: 13px; font-weight: 700; cursor: pointer; -webkit-appearance: none; }
+.perguntas-rapidas { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.btn-pergunta-rapida { background: #1a1a2e; border: 1px solid #333; border-radius: 15px; padding: 6px 12px; color: #fff; font-size: 11px; cursor: pointer; -webkit-appearance: none; }
+
+.sugestao-box { background: #1a1a2e; border: 1px solid #333; border-radius: 15px; padding: 12px; margin-bottom: 12px; border-left: 4px solid #9b59b6; }
+.sugestao-box h4 { font-size: 13px; color: #9b59b6; margin-bottom: 6px; }
+.sugestao-box p { font-size: 12px; color: #a0a0b8; line-height: 1.5; }
+.btn-usar { margin-top: 8px; padding: 8px 14px; background: #9b59b6; color: white; border: none; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; -webkit-appearance: none; }
+
+.painel-evolucao { background: #14142b; border: 1px solid #333; border-radius: 15px; padding: 12px; margin-bottom: 12px; }
+.painel-evolucao h3 { font-size: 14px; color: #00d9ff; margin-bottom: 10px; }
+.evolucao-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #333; font-size: 12px; }
+.evolucao-item:last-child { border-bottom: none; }
+.evolucao-label { color: #a0a0b8; }
+.evolucao-valor { color: #fff; font-weight: 700; }
+.evolucao-barra { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-top: 4px; }
+.evolucao-fill { height: 100%; border-radius: 3px; }
+.nivel-badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.nivel-1 { background: #333; color: #fff; }
+.nivel-2 { background: #e94560; color: #fff; }
+.nivel-3 { background: #f39c12; color: #fff; }
+.nivel-4 { background: #2ecc71; color: #fff; }
+.nivel-5 { background: #00d9ff; color: #000; }
+
+.config-item { background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+.config-label { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.config-slider { width: 100%; -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px; background: #0a0a1f; outline: none; }
+.config-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #e94560; cursor: pointer; }
+.config-toggle { display: flex; justify-content: space-between; align-items: center; }
+.toggle-switch { position: relative; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; border-radius: 22px; }
+.toggle-slider:before { content: ""; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; border-radius: 50%; }
+input:checked + .toggle-slider { background: #e94560; }
+input:checked + .toggle-slider:before { transform: translateX(18px); }
+.historico-lista { background: #0a0a1f; border-radius: 10px; padding: 8px; max-height: 150px; overflow-y: auto; font-size: 12px; }
+.historico-item { padding: 6px 8px; border-bottom: 1px solid #333; color: #a0a0b8; }
+.btn-limpar-hist { width: 100%; margin-top: 8px; padding: 10px; background: #e94560; color: white; border: none; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; -webkit-appearance: none; }
+
+.footer { background: #0a0a1f; padding: 8px; text-align: center; font-size: 10px; color: #666; border-top: 1px solid #333; }
+</style>
+</head>
+<body>
+
+<div id="tela-entrada">
+  <div class="logo-emoji">ROBO</div>
+  <div class="logo-titulo">FALAMIGO KIDS</div>
+  <div class="logo-sub">Comunicador Assistivo com IA</div>
+  <div class="logo-desc">IA que aprende sua rotina e ajuda voce a falar!</div>
+  <button class="btn-entrar" id="btnEntrar">ENTRAR NO APP</button>
+  <div class="versao-info">v3.4 IA Evolutiva | HGC Software Solutions</div>
+</div>
+
+<div id="app-principal">
+  <div class="header">
+    <div class="header-titulo">Falamigo Kids</div>
+    <div class="header-sub">IA Evolutiva | v3.4</div>
+  </div>
+  <div class="barra-fala">
+    <div class="display-fala" id="displayFala">Toque nos botoes para falar...</div>
+    <button class="btn-acao btn-falar" id="btnFalar">FALAR</button>
+    <button class="btn-acao btn-limpar" id="btnLimpar">X</button>
+  </div>
+  <div class="painel-principal">
+    <div class="abas-lateral">
+      <button class="aba-btn ativa" id="abaComer" data-aba="comer"><span class="emoji">C</span>Comer</button>
+      <button class="aba-btn" id="abaBeber" data-aba="beber"><span class="emoji">B</span>Beber</button>
+      <button class="aba-btn" id="abaBrincar" data-aba="brincar"><span class="emoji">J</span>Brincar</button>
+      <button class="aba-btn" id="abaSentir" data-aba="sentir"><span class="emoji">S</span>Sinto</button>
+      <button class="aba-btn" id="abaPreciso" data-aba="preciso"><span class="emoji">P</span>Preciso</button>
+      <button class="aba-btn" id="abaRotina" data-aba="rotina"><span class="emoji">R</span>Rotina</button>
+      <button class="aba-btn" id="abaSOS" data-aba="sos"><span class="emoji">!</span>SOS</button>
+      <button class="aba-btn" id="abaIA" data-aba="ia"><span class="emoji">IA</span>IA</button>
+      <button class="aba-btn" id="abaEvolucao" data-aba="evolucao"><span class="emoji">E</span>Evoluir</button>
+      <button class="aba-btn" id="abaConfig" data-aba="config"><span class="emoji">#</span>Config</button>
+    </div>
+    <div class="area-conteudo" id="areaConteudo"></div>
+  </div>
+  <div class="footer">Falamigo Kids IA Evolutiva v3.4 | HGC Software Solutions</div>
+</div>
+
+<script>
+var DADOS = {
+  comer: [["Quero comer","COMER"],["Quero arroz","ARROZ"],["Quero feijao","FEIJAO"],["Quero carne","CARNE"],["Quero frango","FRANGO"],["Quero pizza","PIZZA"],["Quero fruta","FRUTA"],["Quero doce","DOCE"],["Estou com fome","FOME"]],
+  beber: [["Quero agua","AGUA"],["Quero suco","SUCO"],["Quero leite","LEITE"],["Quero cafe","CAFE"],["Quero cha","CHA"],["Estou com sede","SEDE"]],
+  brincar: [["Quero brincar","BRINCAR"],["Quero bola","BOLA"],["Quero carrinho","CARRINHO"],["Quero boneca","BONECA"],["Quero desenhar","DESENHAR"],["Quero TV","TV"],["Quero musica","MUSICA"],["Quero parque","PARQUE"]],
+  sentir: [["Estou feliz","FELIZ"],["Estou triste","TRISTE"],["Estou com medo","MEDO"],["Estou com raiva","RAIVA"],["Estou cansado","CANSADO"],["Estou doente","DOENTE"],["Estou com dor","DOR"],["Estou animado","ANIMADO"]],
+  preciso: [["Preciso do banheiro","BANHEIRO"],["Preciso de ajuda","AJUDA"],["Preciso do meu remedio","REMEDIO"],["Preciso do meu abafador","ABAFADOR"],["Preciso de espaco","ESPACO"],["Preciso de carinho","CARINHO"],["Quero dormir","DORMIR"]],
+  rotina: [["Hora de acordar","ACORDAR"],["Hora de escovar","ESCOVAR"],["Hora de banho","BANHO"],["Hora da escola","ESCOLA"],["Hora do almoco","ALMOCO"],["Hora de brincar","BRINCAR"],["Hora de dormir","DORMIR"]],
+  sos: [["Estou mal","MAL"],["Estou com dor","DOR"],["Estou com medo","MEDO"],["Preciso dos pais","PAIS"],["Estou em crise","CRISE"]]
+};
+
+var CONHECIMENTO_IA = {
+  saudacoes: ["Oi! Eu sou o assistente do Falamigo! Como posso te ajudar?","Ola! Estou aqui para te ajudar! O que voce precisa?","Oi! Vamos conversar? Posso te ajudar com muitas coisas!"],
+  rotina_manha: ["Bom dia! Que tal comecar escovando os dentes?","Bom dia! Vamos tomar cafe da manha?","Bom dia! Hora de se vestir!"],
+  rotina_tarde: ["Boa tarde! Que tal um lanche?","Boa tarde! Hora de brincar!","Boa tarde! Vamos descansar?"],
+  rotina_noite: ["Boa noite! Hora de jantar!","Boa noite! Que tal tomar banho?","Boa noite! Hora de dormir!"],
+  recomendacoes_brincar: ["Que tal brincar com seu carrinho favorito?","Vamos desenhar algo legal?","Que tal ouvir uma musica animada?","Vamos jogar uma bola?"],
+  recomendacoes_calma: ["Vamos respirar fundo juntos? Inspira... solta...","Que tal ouvir uma musica tranquila?","Vamos contar ate 10 devagar?","Que tal apertar seu abafador?"],
+  recomendacoes_comer: ["Que tal uma fruta? E saudavel e gostosa!","Vamos comer arroz com feijao?","Que tal um suco natural?"],
+  encorajamento: ["Voce esta indo muito bem! Continue!","Que orgulho de voce! Voce e especial!","Voce e forte! Consegue fazer isso!","Estou aqui com voce!"]
+};
+
+var fraseAtual = "";
+var abaAtual = "comer";
+var historico = [];
+var iaMemoria = { 
+  preferencias: {}, 
+  frequencia: {}, 
+  humor: [], 
+  nomeCrianca: null,
+  rotinaAprendida: {},
+  horariosRotina: {},
+  nivelFala: 1,
+  palavrasDitas: 0,
+  frasesCompletas: 0,
+  sequencias: [],
+  padroes: {}
+};
+var autoFalar = true;
+var volume = 1;
+var rate = 1;
+var pitch = 1;
+
+function entrarApp() {
+  var tela = document.getElementById("tela-entrada");
+  var app = document.getElementById("app-principal");
+  if (tela) tela.style.display = "none";
+  if (app) app.style.display = "block";
+  mostrarAba("comer");
+}
+
+function mostrarAba(nome) {
+  abaAtual = nome;
+  var c = document.getElementById("areaConteudo");
+  if (!c) return;
+  c.innerHTML = "";
+
+  if (nome === "ia") {
+    mostrarAbaIA(c);
+    return;
+  }
+  if (nome === "evolucao") {
+    mostrarAbaEvolucao(c);
+    return;
+  }
+  if (nome === "config") {
+    mostrarAbaConfig(c);
+    return;
+  }
+
+  var g = document.createElement("div");
+  g.className = "grid-botoes";
+
+  if (nome === "sos") {
+    var b = document.createElement("button");
+    b.className = "btn-card sos-alerta";
+    b.textContent = "PRECISO DE AJUDA!";
+    b.onclick = function() { acionarSOS(); };
+    g.appendChild(b);
+  }
+
+  var dados = DADOS[nome] || [];
+  for (var i = 0; i < dados.length; i++) {
+    var t = dados[i][0];
+    var b = document.createElement("button");
+    b.className = "btn-card";
+    b.textContent = t;
+    b.onclick = (function(texto) {
+      return function() { adicionarFrase(texto); };
+    })(t);
+    g.appendChild(b);
+  }
+  c.appendChild(g);
+
+  atualizarAbaAtiva(nome);
+}
+
+function atualizarAbaAtiva(nome) {
+  var abas = document.querySelectorAll(".aba-btn");
+  for (var i = 0; i < abas.length; i++) abas[i].classList.remove("ativa");
+  var ids = { comer: "abaComer", beber: "abaBeber", brincar: "abaBrincar", sentir: "abaSentir", preciso: "abaPreciso", rotina: "abaRotina", sos: "abaSOS", ia: "abaIA", evolucao: "abaEvolucao", config: "abaConfig" };
+  var ativa = document.getElementById(ids[nome]);
+  if (ativa) ativa.classList.add("ativa");
+}
+
+function mudarAba(nome) {
+  mostrarAba(nome);
+}
+
+function adicionarFrase(texto) {
+  fraseAtual = texto;
+  var disp = document.getElementById("displayFala");
+  if (disp) {
+    disp.textContent = texto;
+    disp.style.borderColor = "#e94560";
+    setTimeout(function() { if (disp) disp.style.borderColor = ""; }, 500);
+  }
+
+  var agora = new Date();
+  var hora = agora.getHours().toString().padStart(2, "0") + ":" + agora.getMinutes().toString().padStart(2, "0");
+  historico.unshift({ texto: texto, hora: hora });
+  if (historico.length > 50) historico.pop();
+
+  aprenderRotina(texto, agora);
+  evoluirFala(texto);
+  salvarDados();
+  if (autoFalar) falarTexto(texto);
+}
+
+function aprenderRotina(texto, agora) {
+  var hora = agora.getHours();
+  var horaStr = hora.toString().padStart(2, "0") + ":00";
+  var dia = agora.toISOString().split("T")[0];
+
+  if (!iaMemoria.horariosRotina[horaStr]) {
+    iaMemoria.horariosRotina[horaStr] = texto;
+  }
+
+  var chave = dia + "_" + hora;
+  if (!iaMemoria.rotinaAprendida[chave]) {
+    iaMemoria.rotinaAprendida[chave] = [];
+  }
+  iaMemoria.rotinaAprendida[chave].push(texto);
+
+  if (historico.length >= 2) {
+    var ultima = historico[1].texto;
+    var padrao = ultima + " -> " + texto;
+    iaMemoria.sequencias.push(padrao);
+    if (iaMemoria.sequencias.length > 50) iaMemoria.sequencias.shift();
+  }
+
+  iaMemoria.frequencia[texto] = (iaMemoria.frequencia[texto] || 0) + 1;
+
+  var humor = "neutro";
+  if (texto.match(/feliz|animado|tranquilo/)) humor = "feliz";
+  else if (texto.match(/triste|cansado|entediado/)) humor = "triste";
+  else if (texto.match(/medo|raiva|dor/)) humor = "angustiado";
+  iaMemoria.humor.push({ texto: texto, humor: humor, hora: hora, data: dia });
+  if (iaMemoria.humor.length > 100) iaMemoria.humor = iaMemoria.humor.slice(-100);
+}
+
+function evoluirFala(texto) {
+  iaMemoria.palavrasDitas++;
+  var palavras = texto.split(" ").length;
+  if (palavras >= 3) {
+    iaMemoria.frasesCompletas++;
+  }
+
+  if (iaMemoria.palavrasDitas >= 200) iaMemoria.nivelFala = 5;
+  else if (iaMemoria.palavrasDitas >= 100) iaMemoria.nivelFala = 4;
+  else if (iaMemoria.palavrasDitas >= 50) iaMemoria.nivelFala = 3;
+  else if (iaMemoria.palavrasDitas >= 10) iaMemoria.nivelFala = 2;
+}
+
+function gerarSugestaoRotina() {
+  var agora = new Date();
+  var hora = agora.getHours();
+  var horaStr = hora.toString().padStart(2, "0") + ":00";
+  var atividadePassada = iaMemoria.horariosRotina[horaStr];
+
+  if (atividadePassada) {
+    return "Baseado na sua rotina, voce costuma: " + atividadePassada + " neste horario. Quer fazer isso agora?";
+  }
+
+  if (hora >= 6 && hora < 12) {
+    return "Bom dia! Voce ja escovou os dentes e tomou cafe da manha?";
+  } else if (hora >= 12 && hora < 14) {
+    return "Hora do almoco! Voce ja comeu?";
+  } else if (hora >= 14 && hora < 18) {
+    return "Boa tarde! Que tal brincar um pouco ou descansar?";
+  } else if (hora >= 18 && hora < 20) {
+    return "Hora do jantar! Depois e hora de tomar banho.";
+  } else {
+    return "Boa noite! Hora de preparar para dormir.";
+  }
+}
+
+function gerarDicaEvolucao() {
+  var nivel = iaMemoria.nivelFala;
+  if (nivel === 1) {
+    return "Voce esta comecando! Tente tocar nos botoes e repetir as palavras em voz alta. Quanto mais voce praticar, mais facil fica!";
+  } else if (nivel === 2) {
+    return "Voce ja fala muito! Agora tente juntar duas palavras. Por exemplo: Quero agua ou Quero brincar. Voce consegue!";
+  } else if (nivel === 3) {
+    return "Incrivel! Voce esta formando frases! Tente dizer Eu quero... antes dos pedidos. Isso deixa a frase mais completa!";
+  } else if (nivel >= 4) {
+    return "Voce e um comunicador fantastico! Tente fazer perguntas como Onde esta...? ou Quando vamos...? Voce e muito capaz!";
+  }
+}
+
+function mostrarAbaIA(area) {
+  var sugestao = gerarSugestaoRotina();
+  var dica = gerarDicaEvolucao();
+
+  var html = '<div class="aba-ia">';
+  html += '<div class="sugestao-box"><h4>Sugestao da IA (Rotina)</h4><p>' + sugestao + '</p><button class="btn-usar" id="btnSugestao0">Falar sugestao</button></div>';
+  html += '<div class="sugestao-box"><h4>Dica de Evolucao</h4><p>' + dica + '</p><button class="btn-usar" id="btnSugestao1">Falar dica</button></div>';
+  html += '<div class="ia-titulo">FALAR COM O ASSISTENTE</div>';
+  html += '<div class="ia-sub">Pergunte algo ou diga como esta se sentindo!</div>';
+  html += '<div class="chat-container" id="chatContainer"></div>';
+  html += '<div class="ia-input-area"><input type="text" class="ia-input" id="iaInput" placeholder="Digite sua mensagem..."><button class="btn-enviar-ia" id="btnEnviarIA">Enviar</button></div>';
+  html += '<div class="perguntas-rapidas">';
+  html += '<button class="btn-pergunta-rapida" data-pergunta="O que faco agora?">O que faco agora?</button>';
+  html += '<button class="btn-pergunta-rapida" data-pergunta="Estou triste">Estou triste</button>';
+  html += '<button class="btn-pergunta-rapida" data-pergunta="Estou com medo">Estou com medo</button>';
+  html += '<button class="btn-pergunta-rapida" data-pergunta="Me encoraje!">Me encoraje!</button>';
+  html += '<button class="btn-pergunta-rapida" data-pergunta="Como posso falar melhor?">Me ajude a falar</button>';
+  html += '</div>';
+  html += '</div>';
+
+  area.innerHTML = html;
+
+  var btn0 = document.getElementById("btnSugestao0");
+  if (btn0) btn0.onclick = function() { usarSugestao(0); };
+  var btn1 = document.getElementById("btnSugestao1");
+  if (btn1) btn1.onclick = function() { usarSugestao(1); };
+  var btnEnviar = document.getElementById("btnEnviarIA");
+  if (btnEnviar) btnEnviar.onclick = function() { enviarPerguntaIA(); };
+
+  var perguntas = document.querySelectorAll(".btn-pergunta-rapida");
+  for (var i = 0; i < perguntas.length; i++) {
+    perguntas[i].onclick = (function(pergunta) {
+      return function() { perguntaRapida(pergunta); };
+    })(perguntas[i].getAttribute("data-pergunta"));
+  }
+
+  adicionarChat("Assistente", "Oi! Eu sou seu amigo virtual! Posso te ajudar com:
+
+- Dicas de rotina
+- Sugestoes de brincadeiras
+- Encorajamento
+- Ajudar voce a falar melhor
+- Responder perguntas
+
+Como posso te ajudar?");
+  atualizarAbaAtiva("ia");
+}
+
+function usarSugestao(tipo) {
+  var texto = tipo === 0 ? gerarSugestaoRotina() : gerarDicaEvolucao();
+  falarTexto(texto);
+  var disp = document.getElementById("displayFala");
+  if (disp) disp.textContent = texto;
+}
+
+function mostrarAbaEvolucao(area) {
+  var nivel = iaMemoria.nivelFala;
+  var palavras = iaMemoria.palavrasDitas;
+  var frasesComp = iaMemoria.frasesCompletas;
+  var rotinaAprendida = Object.keys(iaMemoria.horariosRotina).length;
+
+  var nivelClass = "nivel-" + nivel;
+  var nivelNome = nivel === 1 ? "Iniciante" : nivel === 2 ? "Explorador" : nivel === 3 ? "Comunicador" : nivel === 4 ? "Conversador" : "Especialista";
+
+  var proximoNivel = nivel < 5 ? (nivel * 50) : 0;
+  var progresso = proximoNivel > 0 ? Math.min(100, (palavras / proximoNivel) * 100) : 100;
+
+  var rotinaHTML = "";
+  for (var hora in iaMemoria.horariosRotina) {
+    if (iaMemoria.horariosRotina.hasOwnProperty(hora)) {
+      rotinaHTML += '<div class="evolucao-item"><span class="evolucao-label">' + hora + '</span><span class="evolucao-valor">' + iaMemoria.horariosRotina[hora] + '</span></div>';
+    }
+  }
+  if (!rotinaHTML) rotinaHTML = '<div class="evolucao-item"><span class="evolucao-label">Ainda aprendendo sua rotina...</span></div>';
+
+  var html = '<div class="aba-ia">';
+  html += '<div class="painel-evolucao"><h3>Nivel de Comunicacao</h3><div class="evolucao-item"><span class="evolucao-label">Nivel Atual</span><span class="evolucao-valor"><span class="nivel-badge ' + nivelClass + '">' + nivelNome + '</span></span></div><div class="evolucao-item"><span class="evolucao-label">Progresso</span><span class="evolucao-valor">' + Math.round(progresso) + '%</span></div><div class="evolucao-barra"><div class="evolucao-fill" style="width:' + progresso + '%;background:linear-gradient(90deg,#e94560,#00d9ff)"></div></div></div>';
+  html += '<div class="painel-evolucao"><h3>Estatisticas de Fala</h3><div class="evolucao-item"><span class="evolucao-label">Palavras ditas</span><span class="evolucao-valor">' + palavras + '</span></div><div class="evolucao-item"><span class="evolucao-label">Frases completas</span><span class="evolucao-valor">' + frasesComp + '</span></div><div class="evolucao-item"><span class="evolucao-label">Rotina aprendida</span><span class="evolucao-valor">' + rotinaAprendida + ' horarios</span></div></div>';
+  html += '<div class="painel-evolucao"><h3>Sua Rotina Aprendida</h3>' + rotinaHTML + '</div>';
+  html += '<div class="painel-evolucao"><h3>Conquistas</h3><div class="evolucao-item"><span class="evolucao-label">Primeira Palavra</span><span class="evolucao-valor">' + (palavras > 0 ? 'OK' : 'X') + '</span></div><div class="evolucao-item"><span class="evolucao-label">10 Palavras</span><span class="evolucao-valor">' + (palavras >= 10 ? 'OK' : 'X') + '</span></div><div class="evolucao-item"><span class="evolucao-label">50 Palavras</span><span class="evolucao-valor">' + (palavras >= 50 ? 'OK' : 'X') + '</span></div><div class="evolucao-item"><span class="evolucao-label">Primeira Frase</span><span class="evolucao-valor">' + (frasesComp > 0 ? 'OK' : 'X') + '</span></div><div class="evolucao-item"><span class="evolucao-label">Rotina Completa</span><span class="evolucao-valor">' + (rotinaAprendida >= 5 ? 'OK' : 'X') + '</span></div></div>';
+  html += '</div>';
+
+  area.innerHTML = html;
+
+  atualizarAbaAtiva("evolucao");
+}
+
+function mostrarAbaConfig(area) {
+  var histHTML = "";
+  for (var i = 0; i < Math.min(historico.length, 20); i++) {
+    var h = historico[i];
+    histHTML += '<div class="historico-item">[' + h.hora + '] ' + h.texto + '</div>';
+  }
+
+  var html = '<div class="aba-ia">';
+  html += '<div class="config-item"><div class="config-label">Volume da fala</div><input type="range" class="config-slider" min="0" max="100" value="80" onchange="volume = this.value / 100"></div>';
+  html += '<div class="config-item"><div class="config-label">Velocidade da fala</div><input type="range" class="config-slider" min="50" max="250" value="150" onchange="rate = this.value / 100"></div>';
+  html += '<div class="config-item"><div class="config-label">Tom da voz</div><input type="range" class="config-slider" min="50" max="200" value="110" onchange="pitch = this.value / 100"></div>';
+  html += '<div class="config-item config-toggle"><span>Falar automaticamente</span><label class="toggle-switch"><input type="checkbox" checked onchange="autoFalar = this.checked"><span class="toggle-slider"></span></label></div>';
+  html += '<div style="font-weight:bold;margin:15px 0 8px 0;">HISTORICO</div><div class="historico-lista">' + (histHTML || 'Nenhuma frase ainda...') + '</div>';
+  html += '<button class="btn-limpar-hist" id="btnLimparHist">Limpar Historico</button>';
+  html += '</div>';
+
+  area.innerHTML = html;
+
+  var btnLimparHist = document.getElementById("btnLimparHist");
+  if (btnLimparHist) btnLimparHist.onclick = function() { limparHistorico(); };
+
+  atualizarAbaAtiva("config");
+}
+
+function falarTexto(texto) {
+  fraseAtual = texto;
+  var disp = document.getElementById("displayFala");
+  if (disp) disp.textContent = texto;
+  if (window.speechSynthesis) {
+    try {
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(texto);
+      u.lang = "pt-BR";
+      u.rate = rate;
+      u.pitch = pitch;
+      u.volume = volume;
+      window.speechSynthesis.speak(u);
+    } catch (e) {
+      console.log("Erro TTS:", e);
+    }
+  }
+}
+
+function falarFrase() {
+  if (!fraseAtual) {
+    var disp = document.getElementById("displayFala");
+    if (disp) disp.textContent = "Toque em um botao primeiro...";
+    return;
+  }
+  falarTexto(fraseAtual);
+}
+
+function limparFrase() {
+  fraseAtual = "";
+  var disp = document.getElementById("displayFala");
+  if (disp) disp.textContent = "Toque nos botoes para falar...";
+}
+
+function adicionarChat(remetente, mensagem) {
+  var c = document.getElementById("chatContainer");
+  if (!c) return;
+  var d = document.createElement("div");
+  d.className = "chat-msg " + (remetente === "Assistente" ? "ia-msg" : "user-msg");
+  var rem = remetente === "Assistente" ? "Assistente" : "Voce";
+  d.innerHTML = '<div class="chat-remetente">' + rem + '</div><div class="chat-bubble">' + mensagem.replace(/
+/g, '<br>') + '</div>';
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+function enviarPerguntaIA() {
+  var input = document.getElementById("iaInput");
+  if (!input) return;
+  var pergunta = input.value.trim();
+  if (!pergunta) return;
+  adicionarChat("Voce", pergunta);
+  input.value = "";
+  var resposta = responderPerguntaIA(pergunta);
+  setTimeout(function() {
+    adicionarChat("Assistente", resposta);
+    falarTexto(resposta);
+  }, 500);
+}
+
+function perguntaRapida(texto) {
+  var input = document.getElementById("iaInput");
+  if (input) input.value = texto;
+  enviarPerguntaIA();
+}
+
+function responderPerguntaIA(pergunta) {
+  var p = pergunta.toLowerCase().trim();
+
+  if (p.match(/falar melhor|como falar|ajuda falar|evoluir|fala/)) {
+    return gerarDicaEvolucao();
+  }
+
+  if (p.match(/rotina|horario|o que faco agora|que horas|agora/)) {
+    return gerarSugestaoRotina();
+  }
+
+  if (p.match(/oi|ola|bom dia|boa tarde|boa noite|ei/)) return randomItem(CONHECIMENTO_IA.saudacoes);
+  if (p.match(/tedio|entediado/)) return randomItem(CONHECIMENTO_IA.recomendacoes_brincar);
+  if (p.match(/comer|fome|comida|jantar|almoco|lanche/)) return randomItem(CONHECIMENTO_IA.recomendacoes_comer);
+  if (p.match(/nervoso|ansioso|medo|calma|respirar|crise/)) return randomItem(CONHECIMENTO_IA.recomendacoes_calma);
+
+  if (p.match(/rotina|horario|hora|agora|que horas|fazer agora/)) {
+    var h = new Date().getHours();
+    if (h >= 6 && h < 12) return randomItem(CONHECIMENTO_IA.rotina_manha);
+    if (h >= 12 && h < 18) return randomItem(CONHECIMENTO_IA.rotina_tarde);
+    return randomItem(CONHECIMENTO_IA.rotina_noite);
+  }
+
+  if (p.indexOf("meu nome") !== -1) {
+    if (iaMemoria.nomeCrianca) return "Seu nome e " + iaMemoria.nomeCrianca + "! Que nome lindo!";
+    return "Ainda nao sei seu nome! Me conta qual e?";
+  }
+  if (p.match(/me chamo|meu nome e/)) {
+    var nome = p.replace(/me chamo|meu nome e/, "").trim();
+    iaMemoria.nomeCrianca = nome.charAt(0).toUpperCase() + nome.slice(1);
+    salvarDados();
+    return "Que prazer te conhecer, " + iaMemoria.nomeCrianca + "! Vou me lembrar de voce!";
+  }
+  if (p.match(/dificil|nao consigo|triste/)) return randomItem(CONHECIMENTO_IA.encorajamento);
+  if (p.match(/encoraje|forca|animo/)) return randomItem(CONHECIMENTO_IA.encorajamento);
+
+  return "Nao entendi muito bem... Mas estou aqui para te ajudar! Toque nos botoes ou me pergunte algo!";
+}
+
+function randomItem(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function acionarSOS() {
+  var msg = "PRECISO DE AJUDA AGORA!";
+  falarTexto(msg);
+  var disp = document.getElementById("displayFala");
+  if (disp) {
+    disp.style.color = "#e94560";
+    setTimeout(function() { if (disp) disp.style.color = ""; }, 3000);
+  }
+  for (var i = 0; i < 3; i++) {
+    (function(idx) {
+      setTimeout(function() { falarTexto("Alerta! A crianca precisa de ajuda urgente!"); }, idx * 3000);
+    })(i);
+  }
+  var agora = new Date();
+  var hora = agora.getHours().toString().padStart(2, "0") + ":" + agora.getMinutes().toString().padStart(2, "0");
+  historico.unshift({ texto: "SOS: " + msg, hora: hora });
+  salvarDados();
+}
+
+function limparHistorico() {
+  historico = [];
+  salvarDados();
+  mostrarAbaConfig(document.getElementById("areaConteudo"));
+}
+
+function salvarDados() {
+  try {
+    if (window.localStorage) {
+      localStorage.setItem("falamigo_historico", JSON.stringify(historico));
+      localStorage.setItem("falamigo_ia", JSON.stringify(iaMemoria));
+    }
+  } catch(e) { console.log("Erro ao salvar:", e); }
+}
+
+function carregarDados() {
+  try {
+    if (window.localStorage) {
+      var h = localStorage.getItem("falamigo_historico");
+      var i = localStorage.getItem("falamigo_ia");
+      if (h) historico = JSON.parse(h);
+      if (i) {
+        var dados = JSON.parse(i);
+        for (var k in dados) {
+          if (dados.hasOwnProperty(k)) iaMemoria[k] = dados[k];
+        }
+      }
+    }
+  } catch(e) { console.log("Erro ao carregar:", e); }
+}
+
+function init() {
+  carregarDados();
+
+  var btnEntrar = document.getElementById("btnEntrar");
+  if (btnEntrar) {
+    btnEntrar.addEventListener("click", entrarApp);
+    btnEntrar.addEventListener("touchend", function(e) {
+      e.preventDefault();
+      entrarApp();
+    });
+  }
+
+  var btnFalar = document.getElementById("btnFalar");
+  if (btnFalar) btnFalar.onclick = falarFrase;
+
+  var btnLimpar = document.getElementById("btnLimpar");
+  if (btnLimpar) btnLimpar.onclick = limparFrase;
+
+  var abas = document.querySelectorAll(".aba-btn");
+  for (var i = 0; i < abas.length; i++) {
+    abas[i].addEventListener("click", (function(aba) {
+      return function() { mudarAba(aba); };
+    })(abas[i].getAttribute("data-aba")));
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
