@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#1a1a2e">
-<title>Falamigo Kids - IA Evolutiva v3.4</title>
+<title>Falamigo Kids - IA Evolutiva v3.3</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { width: 100%; height: 100%; font-family: Arial, sans-serif; background: #0d0d1a; color: #fff; overflow: hidden; }
@@ -94,55 +94,56 @@ input:checked + .toggle-slider:before { transform: translateX(18px); }
 
 .footer { background: #0a0a1f; padding: 8px; text-align: center; font-size: 10px; color: #666; border-top: 1px solid #333; }
 </style>
+<base target="_blank">
 </head>
 <body>
 
 <div id="tela-entrada">
-  <div class="logo-emoji">ROBO</div>
+  <div class="logo-emoji">&#129302;</div>
   <div class="logo-titulo">FALAMIGO KIDS</div>
   <div class="logo-sub">Comunicador Assistivo com IA</div>
   <div class="logo-desc">IA que aprende sua rotina e ajuda voce a falar!</div>
-  <button class="btn-entrar" id="btnEntrar">ENTRAR NO APP</button>
-  <div class="versao-info">v3.4 IA Evolutiva | HGC Software Solutions</div>
+  <button class="btn-entrar" id="btnEntrar">&#128100; ENTRAR NO APP</button>
+  <div class="versao-info">v3.3 IA Evolutiva | HGC Software Solutions</div>
 </div>
 
 <div id="app-principal">
   <div class="header">
-    <div class="header-titulo">Falamigo Kids</div>
-    <div class="header-sub">IA Evolutiva | v3.4</div>
+    <div class="header-titulo">&#129302; Falamigo Kids</div>
+    <div class="header-sub">IA Evolutiva | v3.3</div>
   </div>
   <div class="barra-fala">
     <div class="display-fala" id="displayFala">Toque nos botoes para falar...</div>
-    <button class="btn-acao btn-falar" id="btnFalar">FALAR</button>
-    <button class="btn-acao btn-limpar" id="btnLimpar">X</button>
+    <button class="btn-acao btn-falar" id="btnFalar">&#128266;</button>
+    <button class="btn-acao btn-limpar" id="btnLimpar">&#10005;</button>
   </div>
   <div class="painel-principal">
     <div class="abas-lateral">
-      <button class="aba-btn ativa" id="abaComer" data-aba="comer"><span class="emoji">C</span>Comer</button>
-      <button class="aba-btn" id="abaBeber" data-aba="beber"><span class="emoji">B</span>Beber</button>
-      <button class="aba-btn" id="abaBrincar" data-aba="brincar"><span class="emoji">J</span>Brincar</button>
-      <button class="aba-btn" id="abaSentir" data-aba="sentir"><span class="emoji">S</span>Sinto</button>
-      <button class="aba-btn" id="abaPreciso" data-aba="preciso"><span class="emoji">P</span>Preciso</button>
-      <button class="aba-btn" id="abaRotina" data-aba="rotina"><span class="emoji">R</span>Rotina</button>
-      <button class="aba-btn" id="abaSOS" data-aba="sos"><span class="emoji">!</span>SOS</button>
-      <button class="aba-btn" id="abaIA" data-aba="ia"><span class="emoji">IA</span>IA</button>
-      <button class="aba-btn" id="abaEvolucao" data-aba="evolucao"><span class="emoji">E</span>Evoluir</button>
-      <button class="aba-btn" id="abaConfig" data-aba="config"><span class="emoji">#</span>Config</button>
+      <button class="aba-btn ativa" id="abaComer" data-aba="comer"><span class="emoji">&#127860;</span>Comer</button>
+      <button class="aba-btn" id="abaBeber" data-aba="beber"><span class="emoji">&#128167;</span>Beber</button>
+      <button class="aba-btn" id="abaBrincar" data-aba="brincar"><span class="emoji">&#127918;</span>Brincar</button>
+      <button class="aba-btn" id="abaSentir" data-aba="sentir"><span class="emoji">&#128522;</span>Sinto</button>
+      <button class="aba-btn" id="abaPreciso" data-aba="preciso"><span class="emoji">&#127344;</span>Preciso</button>
+      <button class="aba-btn" id="abaRotina" data-aba="rotina"><span class="emoji">&#127749;</span>Rotina</button>
+      <button class="aba-btn" id="abaSOS" data-aba="sos"><span class="emoji">&#9888;</span>SOS</button>
+      <button class="aba-btn" id="abaIA" data-aba="ia"><span class="emoji">&#129302;</span>IA</button>
+      <button class="aba-btn" id="abaEvolucao" data-aba="evolucao"><span class="emoji">&#128200;</span>Evoluir</button>
+      <button class="aba-btn" id="abaConfig" data-aba="config"><span class="emoji">&#9881;</span>Config</button>
     </div>
     <div class="area-conteudo" id="areaConteudo"></div>
   </div>
-  <div class="footer">Falamigo Kids IA Evolutiva v3.4 | HGC Software Solutions</div>
+  <div class="footer">Falamigo Kids IA Evolutiva v3.3 | HGC Software Solutions</div>
 </div>
 
 <script>
 var DADOS = {
-  comer: [["Quero comer","COMER"],["Quero arroz","ARROZ"],["Quero feijao","FEIJAO"],["Quero carne","CARNE"],["Quero frango","FRANGO"],["Quero pizza","PIZZA"],["Quero fruta","FRUTA"],["Quero doce","DOCE"],["Estou com fome","FOME"]],
-  beber: [["Quero agua","AGUA"],["Quero suco","SUCO"],["Quero leite","LEITE"],["Quero cafe","CAFE"],["Quero cha","CHA"],["Estou com sede","SEDE"]],
-  brincar: [["Quero brincar","BRINCAR"],["Quero bola","BOLA"],["Quero carrinho","CARRINHO"],["Quero boneca","BONECA"],["Quero desenhar","DESENHAR"],["Quero TV","TV"],["Quero musica","MUSICA"],["Quero parque","PARQUE"]],
-  sentir: [["Estou feliz","FELIZ"],["Estou triste","TRISTE"],["Estou com medo","MEDO"],["Estou com raiva","RAIVA"],["Estou cansado","CANSADO"],["Estou doente","DOENTE"],["Estou com dor","DOR"],["Estou animado","ANIMADO"]],
-  preciso: [["Preciso do banheiro","BANHEIRO"],["Preciso de ajuda","AJUDA"],["Preciso do meu remedio","REMEDIO"],["Preciso do meu abafador","ABAFADOR"],["Preciso de espaco","ESPACO"],["Preciso de carinho","CARINHO"],["Quero dormir","DORMIR"]],
-  rotina: [["Hora de acordar","ACORDAR"],["Hora de escovar","ESCOVAR"],["Hora de banho","BANHO"],["Hora da escola","ESCOLA"],["Hora do almoco","ALMOCO"],["Hora de brincar","BRINCAR"],["Hora de dormir","DORMIR"]],
-  sos: [["Estou mal","MAL"],["Estou com dor","DOR"],["Estou com medo","MEDO"],["Preciso dos pais","PAIS"],["Estou em crise","CRISE"]]
+  comer: [["Quero comer","&#127860;"],["Quero arroz","&#127835;"],["Quero feijao","&#129382;"],["Quero carne","&#129385;"],["Quero frango","&#127831;"],["Quero pizza","&#127829;"],["Quero fruta","&#127822;"],["Quero doce","&#127852;"],["Estou com fome","&#128523;"]],
+  beber: [["Quero agua","&#128167;"],["Quero suco","&#129380;"],["Quero leite","&#129371;"],["Quero cafe","&#9749;"],["Quero cha","&#127861;"],["Estou com sede","&#129397;"]],
+  brincar: [["Quero brincar","&#127918;"],["Quero bola","&#9917;"],["Quero carrinho","&#128665;"],["Quero boneca","&#129528;"],["Quero desenhar","&#127912;"],["Quero TV","&#128250;"],["Quero musica","&#127925;"],["Quero parque","&#127905;"]],
+  sentir: [["Estou feliz","&#128522;"],["Estou triste","&#128546;"],["Estou com medo","&#128552;"],["Estou com raiva","&#128544;"],["Estou cansado","&#128564;"],["Estou doente","&#129298;"],["Estou com dor","&#129301;"],["Estou animado","&#129321;"]],
+  preciso: [["Preciso do banheiro","&#128701;"],["Preciso de ajuda","&#127344;"],["Preciso do meu remedio","&#128138;"],["Preciso do meu abafador","&#127911;"],["Preciso de espaco","&#129496;"],["Preciso de carinho","&#129303;"],["Quero dormir","&#128719;"]],
+  rotina: [["Hora de acordar","&#127749;"],["Hora de escovar","&#129529;"],["Hora de banho","&#128703;"],["Hora da escola","&#127979;"],["Hora do almoco","&#127860;"],["Hora de brincar","&#127918;"],["Hora de dormir","&#127769;"]],
+  sos: [["Estou mal","&#129314;"],["Estou com dor","&#128547;"],["Estou com medo","&#128561;"],["Preciso dos pais","&#128106;"],["Estou em crise","&#128552;"]]
 };
 
 var CONHECIMENTO_IA = {
@@ -210,7 +211,7 @@ function mostrarAba(nome) {
   if (nome === "sos") {
     var b = document.createElement("button");
     b.className = "btn-card sos-alerta";
-    b.textContent = "PRECISO DE AJUDA!";
+    b.innerHTML = '<span class="emoji-card">&#9888;</span>PRECISO DE AJUDA!';
     b.onclick = function() { acionarSOS(); };
     g.appendChild(b);
   }
@@ -218,9 +219,10 @@ function mostrarAba(nome) {
   var dados = DADOS[nome] || [];
   for (var i = 0; i < dados.length; i++) {
     var t = dados[i][0];
+    var e = dados[i][1];
     var b = document.createElement("button");
     b.className = "btn-card";
-    b.textContent = t;
+    b.innerHTML = '<span class="emoji-card">' + e + '</span>' + t;
     b.onclick = (function(texto) {
       return function() { adicionarFrase(texto); };
     })(t);
@@ -348,23 +350,21 @@ function mostrarAbaIA(area) {
   var sugestao = gerarSugestaoRotina();
   var dica = gerarDicaEvolucao();
 
-  var html = '<div class="aba-ia">';
-  html += '<div class="sugestao-box"><h4>Sugestao da IA (Rotina)</h4><p>' + sugestao + '</p><button class="btn-usar" id="btnSugestao0">Falar sugestao</button></div>';
-  html += '<div class="sugestao-box"><h4>Dica de Evolucao</h4><p>' + dica + '</p><button class="btn-usar" id="btnSugestao1">Falar dica</button></div>';
-  html += '<div class="ia-titulo">FALAR COM O ASSISTENTE</div>';
-  html += '<div class="ia-sub">Pergunte algo ou diga como esta se sentindo!</div>';
-  html += '<div class="chat-container" id="chatContainer"></div>';
-  html += '<div class="ia-input-area"><input type="text" class="ia-input" id="iaInput" placeholder="Digite sua mensagem..."><button class="btn-enviar-ia" id="btnEnviarIA">Enviar</button></div>';
-  html += '<div class="perguntas-rapidas">';
-  html += '<button class="btn-pergunta-rapida" data-pergunta="O que faco agora?">O que faco agora?</button>';
-  html += '<button class="btn-pergunta-rapida" data-pergunta="Estou triste">Estou triste</button>';
-  html += '<button class="btn-pergunta-rapida" data-pergunta="Estou com medo">Estou com medo</button>';
-  html += '<button class="btn-pergunta-rapida" data-pergunta="Me encoraje!">Me encoraje!</button>';
-  html += '<button class="btn-pergunta-rapida" data-pergunta="Como posso falar melhor?">Me ajude a falar</button>';
-  html += '</div>';
-  html += '</div>';
-
-  area.innerHTML = html;
+  area.innerHTML = '<div class="aba-ia">' +
+    '<div class="sugestao-box"><h4>&#129302; Sugestao da IA (Rotina)</h4><p>' + sugestao + '</p><button class="btn-usar" id="btnSugestao0">&#128266; Falar sugestao</button></div>' +
+    '<div class="sugestao-box"><h4>&#128200; Dica de Evolucao</h4><p>' + dica + '</p><button class="btn-usar" id="btnSugestao1">&#128266; Falar dica</button></div>' +
+    '<div class="ia-titulo">&#129302; FALAR COM O ASSISTENTE</div>' +
+    '<div class="ia-sub">Pergunte algo ou diga como esta se sentindo!</div>' +
+    '<div class="chat-container" id="chatContainer"></div>' +
+    '<div class="ia-input-area"><input type="text" class="ia-input" id="iaInput" placeholder="Digite sua mensagem..."><button class="btn-enviar-ia" id="btnEnviarIA">&#128229; Enviar</button></div>' +
+    '<div class="perguntas-rapidas">' +
+    '<button class="btn-pergunta-rapida" data-pergunta="O que faco agora?">&#129300; O que faco agora?</button>' +
+    '<button class="btn-pergunta-rapida" data-pergunta="Estou triste">&#128546; Estou triste</button>' +
+    '<button class="btn-pergunta-rapida" data-pergunta="Estou com medo">&#128552; Estou com medo</button>' +
+    '<button class="btn-pergunta-rapida" data-pergunta="Me encoraje!">&#128170; Me encoraje!</button>' +
+    '<button class="btn-pergunta-rapida" data-pergunta="Como posso falar melhor?">&#128200; Me ajude a falar</button>' +
+    '</div>' +
+    '</div>';
 
   var btn0 = document.getElementById("btnSugestao0");
   if (btn0) btn0.onclick = function() { usarSugestao(0); };
@@ -419,14 +419,12 @@ function mostrarAbaEvolucao(area) {
   }
   if (!rotinaHTML) rotinaHTML = '<div class="evolucao-item"><span class="evolucao-label">Ainda aprendendo sua rotina...</span></div>';
 
-  var html = '<div class="aba-ia">';
-  html += '<div class="painel-evolucao"><h3>Nivel de Comunicacao</h3><div class="evolucao-item"><span class="evolucao-label">Nivel Atual</span><span class="evolucao-valor"><span class="nivel-badge ' + nivelClass + '">' + nivelNome + '</span></span></div><div class="evolucao-item"><span class="evolucao-label">Progresso</span><span class="evolucao-valor">' + Math.round(progresso) + '%</span></div><div class="evolucao-barra"><div class="evolucao-fill" style="width:' + progresso + '%;background:linear-gradient(90deg,#e94560,#00d9ff)"></div></div></div>';
-  html += '<div class="painel-evolucao"><h3>Estatisticas de Fala</h3><div class="evolucao-item"><span class="evolucao-label">Palavras ditas</span><span class="evolucao-valor">' + palavras + '</span></div><div class="evolucao-item"><span class="evolucao-label">Frases completas</span><span class="evolucao-valor">' + frasesComp + '</span></div><div class="evolucao-item"><span class="evolucao-label">Rotina aprendida</span><span class="evolucao-valor">' + rotinaAprendida + ' horarios</span></div></div>';
-  html += '<div class="painel-evolucao"><h3>Sua Rotina Aprendida</h3>' + rotinaHTML + '</div>';
-  html += '<div class="painel-evolucao"><h3>Conquistas</h3><div class="evolucao-item"><span class="evolucao-label">Primeira Palavra</span><span class="evolucao-valor">' + (palavras > 0 ? 'OK' : 'X') + '</span></div><div class="evolucao-item"><span class="evolucao-label">10 Palavras</span><span class="evolucao-valor">' + (palavras >= 10 ? 'OK' : 'X') + '</span></div><div class="evolucao-item"><span class="evolucao-label">50 Palavras</span><span class="evolucao-valor">' + (palavras >= 50 ? 'OK' : 'X') + '</span></div><div class="evolucao-item"><span class="evolucao-label">Primeira Frase</span><span class="evolucao-valor">' + (frasesComp > 0 ? 'OK' : 'X') + '</span></div><div class="evolucao-item"><span class="evolucao-label">Rotina Completa</span><span class="evolucao-valor">' + (rotinaAprendida >= 5 ? 'OK' : 'X') + '</span></div></div>';
-  html += '</div>';
-
-  area.innerHTML = html;
+  area.innerHTML = '<div class="aba-ia">' +
+    '<div class="painel-evolucao"><h3>&#127942; Nivel de Comunicacao</h3><div class="evolucao-item"><span class="evolucao-label">Nivel Atual</span><span class="evolucao-valor"><span class="nivel-badge ' + nivelClass + '">' + nivelNome + '</span></span></div><div class="evolucao-item"><span class="evolucao-label">Progresso</span><span class="evolucao-valor">' + Math.round(progresso) + '%</span></div><div class="evolucao-barra"><div class="evolucao-fill" style="width:' + progresso + '%;background:linear-gradient(90deg,#e94560,#00d9ff)"></div></div></div>' +
+    '<div class="painel-evolucao"><h3>&#128172; Estatisticas de Fala</h3><div class="evolucao-item"><span class="evolucao-label">Palavras ditas</span><span class="evolucao-valor">' + palavras + '</span></div><div class="evolucao-item"><span class="evolucao-label">Frases completas</span><span class="evolucao-valor">' + frasesComp + '</span></div><div class="evolucao-item"><span class="evolucao-label">Rotina aprendida</span><span class="evolucao-valor">' + rotinaAprendida + ' horarios</span></div></div>' +
+    '<div class="painel-evolucao"><h3>&#128339; Sua Rotina Aprendida</h3>' + rotinaHTML + '</div>' +
+    '<div class="painel-evolucao"><h3>&#127919; Conquistas</h3><div class="evolucao-item"><span class="evolucao-label">Primeira Palavra</span><span class="evolucao-valor">' + (palavras > 0 ? '&#9989;' : '&#10060;') + '</span></div><div class="evolucao-item"><span class="evolucao-label">10 Palavras</span><span class="evolucao-valor">' + (palavras >= 10 ? '&#9989;' : '&#10060;') + '</span></div><div class="evolucao-item"><span class="evolucao-label">50 Palavras</span><span class="evolucao-valor">' + (palavras >= 50 ? '&#9989;' : '&#10060;') + '</span></div><div class="evolucao-item"><span class="evolucao-label">Primeira Frase</span><span class="evolucao-valor">' + (frasesComp > 0 ? '&#9989;' : '&#10060;') + '</span></div><div class="evolucao-item"><span class="evolucao-label">Rotina Completa</span><span class="evolucao-valor">' + (rotinaAprendida >= 5 ? '&#9989;' : '&#10060;') + '</span></div></div>' +
+    '</div>';
 
   atualizarAbaAtiva("evolucao");
 }
@@ -438,16 +436,14 @@ function mostrarAbaConfig(area) {
     histHTML += '<div class="historico-item">[' + h.hora + '] ' + h.texto + '</div>';
   }
 
-  var html = '<div class="aba-ia">';
-  html += '<div class="config-item"><div class="config-label">Volume da fala</div><input type="range" class="config-slider" min="0" max="100" value="80" onchange="volume = this.value / 100"></div>';
-  html += '<div class="config-item"><div class="config-label">Velocidade da fala</div><input type="range" class="config-slider" min="50" max="250" value="150" onchange="rate = this.value / 100"></div>';
-  html += '<div class="config-item"><div class="config-label">Tom da voz</div><input type="range" class="config-slider" min="50" max="200" value="110" onchange="pitch = this.value / 100"></div>';
-  html += '<div class="config-item config-toggle"><span>Falar automaticamente</span><label class="toggle-switch"><input type="checkbox" checked onchange="autoFalar = this.checked"><span class="toggle-slider"></span></label></div>';
-  html += '<div style="font-weight:bold;margin:15px 0 8px 0;">HISTORICO</div><div class="historico-lista">' + (histHTML || 'Nenhuma frase ainda...') + '</div>';
-  html += '<button class="btn-limpar-hist" id="btnLimparHist">Limpar Historico</button>';
-  html += '</div>';
-
-  area.innerHTML = html;
+  area.innerHTML = '<div class="aba-ia">' +
+    '<div class="config-item"><div class="config-label">&#128266; Volume da fala</div><input type="range" class="config-slider" min="0" max="100" value="80" onchange="volume = this.value / 100"></div>' +
+    '<div class="config-item"><div class="config-label">&#9889; Velocidade da fala</div><input type="range" class="config-slider" min="50" max="250" value="150" onchange="rate = this.value / 100"></div>' +
+    '<div class="config-item"><div class="config-label">&#127925; Tom da voz</div><input type="range" class="config-slider" min="50" max="200" value="110" onchange="pitch = this.value / 100"></div>' +
+    '<div class="config-item config-toggle"><span>Falar automaticamente</span><label class="toggle-switch"><input type="checkbox" checked onchange="autoFalar = this.checked"><span class="toggle-slider"></span></label></div>' +
+    '<div style="font-weight:bold;margin:15px 0 8px 0;">&#128220; HISTORICO</div><div class="historico-lista">' + (histHTML || 'Nenhuma frase ainda...') + '</div>' +
+    '<button class="btn-limpar-hist" id="btnLimparHist">&#128465; Limpar Historico</button>' +
+    '</div>';
 
   var btnLimparHist = document.getElementById("btnLimparHist");
   if (btnLimparHist) btnLimparHist.onclick = function() { limparHistorico(); };
@@ -494,7 +490,7 @@ function adicionarChat(remetente, mensagem) {
   if (!c) return;
   var d = document.createElement("div");
   d.className = "chat-msg " + (remetente === "Assistente" ? "ia-msg" : "user-msg");
-  var rem = remetente === "Assistente" ? "Assistente" : "Voce";
+  var rem = remetente === "Assistente" ? "&#129302; Assistente" : "&#128100; Voce";
   d.innerHTML = '<div class="chat-remetente">' + rem + '</div><div class="chat-bubble">' + mensagem.replace(/
 /g, '<br>') + '</div>';
   c.appendChild(d);
