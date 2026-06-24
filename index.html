@@ -1,7 +1,9 @@
 
-<!DOCTYPE html><html lang="pt-BR"><head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>FALAMIGO IA - Comunicador Inteligente</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -11,11 +13,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#E3F2FD;height:100vh
 .splash.hide{opacity:0;pointer-events:none}
 .splash .mascote{width:180px;height:180px;border-radius:50%;display:flex;align-items:center;justify-content:center;animation:float 3s ease-in-out infinite;box-shadow:0 10px 40px rgba(0,0,0,.3);overflow:hidden;border:4px solid rgba(255,255,255,.3);background:linear-gradient(135deg,#FFD93D,#F6AD55);font-size:5rem}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
-.splash .mascote video{width:100%;height:100%;object-fit:cover}
-.mascote-flutuante video{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.avatar video{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.ia-avatar video{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.mascote-mini video{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.splash .mascote video,.mascote-flutuante video,.avatar video,.ia-avatar video,.mascote-mini video{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .splash h1{color:white;font-size:2.5rem;margin-top:15px}
 .splash p{color:rgba(255,255,255,.8);margin:5px 0 20px}
 .splash input{padding:15px;border:none;border-radius:12px;font-size:1.1rem;text-align:center;width:280px;margin-bottom:10px}
@@ -203,15 +201,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#E3F2FD;height:100vh
 .btn-sos{position:fixed;bottom:150px;left:15px;width:55px;height:55px;border-radius:50%;background:#E74C3C;color:white;border:none;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 15px rgba(231,76,60,.4);z-index:9996;display:flex;align-items:center;justify-content:center;animation:pulseSOS 2s infinite}
 @keyframes pulseSOS{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 </style>
-<script src="https://www.kimi.com/sdk-seed.js" defer=""></script></head>
+</head>
 <body>
 
 <!-- SPLASH -->
 <div class="splash" id="splash">
-  <video class="mascote" src="mascote.mp4" autoplay="" muted="" loop="" playsinline=""></video>
+  <video class="mascote" src="mascote.mp4" autoplay muted loop playsinline></video>
   <h1>FALAMIGO</h1>
   <p>Seu assistente de comunicação</p>
-  <input type="text" id="nomeUser" placeholder="Digite seu nome" maxlength="20"/>
+  <input type="text" id="nomeUser" placeholder="Digite seu nome" maxlength="20">
   <button onclick="entrarApp()">ENTRAR</button>
 </div>
 
@@ -226,38 +224,38 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#E3F2FD;height:100vh
   </div>
   <div class="content" id="content"></div>
   <div class="nav" id="nav">
-    <button onclick="mostrarSecao(&#39;comunicar&#39;)" class="on"><span class="ico">💬</span>Comunicar</button>
-    <button onclick="mostrarSecao(&#39;rotinas&#39;)"><span class="ico">📋</span>Rotinas</button>
-    <button onclick="mostrarSecao(&#39;treino&#39;)"><span class="ico">🎯</span>Treino</button>
-    <button onclick="mostrarSecao(&#39;ia&#39;)"><span class="ico">🤖</span>IA</button>
-    <button onclick="mostrarSecao(&#39;config&#39;)"><span class="ico">⚙️</span>Config</button>
+    <button onclick="mostrarSecao('comunicar')" class="on"><span class="ico">💬</span>Comunicar</button>
+    <button onclick="mostrarSecao('rotinas')"><span class="ico">📋</span>Rotinas</button>
+    <button onclick="mostrarSecao('treino')"><span class="ico">🎯</span>Treino</button>
+    <button onclick="mostrarSecao('ia')"><span class="ico">🤖</span>IA</button>
+    <button onclick="mostrarSecao('config')"><span class="ico">⚙️</span>Config</button>
   </div>
 </div>
 
 <!-- MASCOTE FLUTUANTE IA -->
 <div class="mascote-flutuante" id="mascoteIA" onclick="togglePainelIA()">
-  <video src="mascote.mp4" autoplay="" muted="" loop="" playsinline="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></video>
+  <video src="mascote.mp4" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;border-radius:50%"></video>
   <div class="notificacao" id="notifIA" style="display:none">1</div>
 </div>
 
 <!-- PAINEL IA -->
 <div class="painel-ia" id="painelIA">
   <div class="painel-ia-header">
-    <div class="avatar"><video src="mascote.mp4" autoplay="" muted="" loop="" playsinline="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></video></div>
+    <div class="avatar"><video src="mascote.mp4" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;border-radius:50%"></video></div>
     <h4>Falamigo IA</h4>
     <button class="fechar" onclick="togglePainelIA()">×</button>
   </div>
   <div class="painel-ia-mensagens" id="mensagensIA">
     <div class="msg-ia ia-resposta">
-      <div style="text-align:center;margin-bottom:5px"><video src="mascote.mp4" autoplay="" muted="" loop="" playsinline="" style="width:40px;height:40px;object-fit:cover;border-radius:50%"></video></div>
+      <div style="text-align:center;margin-bottom:5px"><video src="mascote.mp4" autoplay muted loop playsinline style="width:40px;height:40px;object-fit:cover;border-radius:50%"></video></div>
       Olá! Sou o Falamigo! Estou aqui para ajudar você a se comunicar melhor. Como posso ajudar hoje?
     </div>
   </div>
   <div class="painel-ia-acoes">
-    <button onclick="acaoIA(&#39;rotina&#39;)">📋 Rotina</button>
-    <button onclick="acaoIA(&#39;treino&#39;)">🎯 Treino</button>
-    <button onclick="acaoIA(&#39;animar&#39;)">🎵 Animar</button>
-    <button onclick="acaoIA(&#39;ajuda&#39;)">❓ Ajuda</button>
+    <button onclick="acaoIA('rotina')">📋 Rotina</button>
+    <button onclick="acaoIA('treino')">🎯 Treino</button>
+    <button onclick="acaoIA('animar')">🎵 Animar</button>
+    <button onclick="acaoIA('ajuda')">❓ Ajuda</button>
   </div>
 </div>
 
@@ -377,9 +375,32 @@ var respostasIA = {
   'default': ['Que interessante! Me conta mais! 🦕', 'Entendi! Quer que eu ajude com algo? 🤔', 'Legal! Vamos praticar juntos? 📚']
 };
 
+// ========== REGISTRO PARA PAIS ==========
+function registrarMensagem(tipo, texto) {
+  if(!nomeUsuario) return;
+  var msgs = JSON.parse(localStorage.getItem('falamigo_mensagens') || '[]');
+  msgs.push({crianca: nomeUsuario, tipo: tipo, texto: texto, timestamp: new Date().toISOString()});
+  if(msgs.length > 500) msgs = msgs.slice(-500);
+  localStorage.setItem('falamigo_mensagens', JSON.stringify(msgs));
+}
+function salvarEstatisticas() {
+  if(!nomeUsuario) return;
+  localStorage.setItem('falamigo_estatisticas_' + nomeUsuario, JSON.stringify(estatisticas));
+}
+function gerarCodigoFamilia() {
+  if(!nomeUsuario) return '';
+  var codigos = JSON.parse(localStorage.getItem('falamigo_codigos') || '{}');
+  if(!codigos[nomeUsuario]) { codigos[nomeUsuario] = 'FALA' + Math.floor(1000 + Math.random() * 9000); localStorage.setItem('falamigo_codigos', JSON.stringify(codigos)); }
+  return codigos[nomeUsuario];
+}
+function abrirPainelPais() { window.open('painel-pais.html?crianca=' + encodeURIComponent(nomeUsuario), '_blank'); }
+
 // ========== FUNÇÕES PRINCIPAIS ==========
 function entrarApp() {
   nomeUsuario = document.getElementById('nomeUser').value || 'Amigo';
+  gerarCodigoFamilia();
+  salvarEstatisticas();
+  registrarMensagem('fala', nomeUsuario + ' entrou no app');
   document.getElementById('splash').classList.add('hide');
   setTimeout(function() {
     document.getElementById('splash').style.display = 'none';
@@ -473,6 +494,7 @@ function falar() {
     var texto = fraseAtual.join(', ');
     falarTexto(texto);
     mostrarToast('🔊 Falando: ' + texto);
+    registrarMensagem('fala', 'Frase: ' + texto);
   }
 }
 
@@ -528,6 +550,7 @@ function iniciarRotina(index) {
   passoAtual = 0;
   atualizarRotina();
   falarTexto('Vamos começar a rotina: ' + rotinas[index].nome);
+  registrarMensagem('rotina', 'Iniciou: ' + rotinas[index].nome);
 }
 
 function atualizarRotina() {
@@ -561,6 +584,8 @@ function atualizarRotina() {
     falarTexto('Rotina concluída! Parabéns!');
     mostrarToast('🎉 Rotina concluída!');
     estatisticas.rotinasConcluidas++;
+    salvarEstatisticas();
+    registrarMensagem('rotina', 'Concluiu: ' + rotinas[rotinaAtiva].nome);
     verificarConquistas();
     rotinaAtiva = null;
   }
@@ -677,6 +702,8 @@ function toggleGravar() {
       }
       
       estatisticas.treinosCompletados++;
+      salvarEstatisticas();
+      registrarMensagem('treino', 'Gravou: ' + palavrasTreino[categoriaTreino][treinoAtual].palavra);
       verificarConquistas();
     }, 3000);
   }
@@ -820,7 +847,15 @@ function renderConfig() {
   html += '<button class="card-btn" style="background:#3498DB;width:100%;margin-bottom:10px" onclick="exportarDados()">📥 Exportar Progresso</button>';
   html += '<button class="card-btn" style="background:#E74C3C;width:100%" onclick="resetarDados()">🗑️ Resetar Dados</button>';
   html += '</div>';
-  
+
+  var codigoFam = gerarCodigoFamilia() || '---';
+  html += '<div class="config-section">';
+  html += '<h4>👨‍👩‍👧 Para os Pais</h4>';
+  html += '<p style="font-size:.85rem;color:#666;margin-bottom:10px;text-align:center">Código da família:<br><b style="color:#667eea;font-size:1.4rem;letter-spacing:3px">' + codigoFam + '</b></p>';
+  html += '<button class="card-btn" style="background:#764ba2;width:100%;margin-bottom:10px" onclick="abrirPainelPais()">👨‍👩‍👧 Abrir Painel dos Pais</button>';
+  html += '<p style="font-size:.75rem;color:#888;text-align:center">Use este código no celular dos pais para conectar</p>';
+  html += '</div>';
+
   document.getElementById('content').innerHTML = html;
 }
 
@@ -890,11 +925,12 @@ window.onload = function() {
 };
 
 window.onbeforeunload = function() {
+  salvarEstatisticas();
   localStorage.setItem('falamigo_dados', JSON.stringify({
     estatisticas: estatisticas,
     conquistas: conquistas
   }));
 };
 </script>
-
-</body></html>
+</body>
+</html>
