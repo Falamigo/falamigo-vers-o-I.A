@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Falamigo - Painel dos Pais</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f7fa;min-height:100vh;color:#333}
+
+/* LOGIN */
+.login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;z-index:10000}
+.login-box{background:white;padding:40px;border-radius:20px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-box h1{color:#667eea;font-size:1.8rem;margin-bottom:10px}
+.login-box p{color:#666;margin-bottom:25px;font-size:.95rem}
+.login-box input{width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:12px;font-size:1rem;margin-bottom:15px;text-align:center;outline:none;transition:border-color .3s}
+.login-box input:focus{border-color:#667eea}
+.login-box button{width:100%;padding:15px;background:#667eea;color:white;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s}
+.login-box button:hover{background:#5a6fd6;transform:translateY(-2px)}
+.login-box .code-display{background:#f0f4f8;padding:15px;border-radius:10px;margin:15px 0;font-size:1.5rem;font-weight:800;color:#667efa;letter-spacing:5px}
+.login-box .qr-placeholder{width:150px;height:150px;background:#f0f4f8;border-radius:10px;margin:15px auto;display:flex;align-items:center;justify-content:center;font-size:3rem}
+
+/* HEADER */
+.header{background:#2C3E50;color:white;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1000}
+.header h1{font-size:1.2rem;display:flex;align-items:center;gap:10px}
+.header .badge{background:#27AE60;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:700}
+.header .badge.offline{background:#E74C3C}
+.header-actions{display:flex;gap:10px;align-items:center}
+.header-actions button{background:rgba(255,255,255,.2);border:none;color:white;padding:8px 15px;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s}
+.header-actions button:hover{background:rgba(255,255,255,.3)}
+
+/* CONTAINER */
+.container{max-width:1200px;margin:0 auto;padding:20px}
+
+/* GRID */
+.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:25px}
+
+/* CARDS */
+.card{background:white;border-radius:15px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.08);transition:transform .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.12)}
+.card h3{font-size:1rem;color:#2C3E50;margin-bottom:15px;display:flex;align-items:center;gap:8px}
+.card h3 .icon{font-size:1.3rem}
+
+/* STAT CARDS */
+.stat-card{text-align:center;padding:25px 20px}
+.stat-card .number{font-size:2.5rem;font-weight:800;color:#667eea;line-height:1}
+.stat-card .label{font-size:.85rem;color:#666;margin-top:8px}
+.stat-card .trend{font-size:.8rem;margin-top:5px;font-weight:600}
+.stat-card .trend.up{color:#27AE60}
+.stat-card .trend.down{color:#E74C3C}
+
+/* MENSAGENS */
+.mensagens-list{max-height:400px;overflow-y:auto}
+.msg-item{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:10px;margin-bottom:8px;background:#f8f9fa;transition:all .2s;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.msg-item.sos{background:#FDE8E8;border-left:4px solid #E74C3C}
+.msg-item.treino{background:#E8F5E9;border-left:4px solid #27AE60}
+.msg-item.rotina{background:#E3F2FD;border-left:4px solid #3498DB}
+.msg-item.novo{background:#FFF8E1;animation:highlight 2s ease}
+@keyframes highlight{0%{background:#FFD93D}100%{background:#FFF8E1}}
+.msg-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FFD93D,#F6AD55);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.msg-avatar img,.msg-avatar video{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.msg-content{flex:1;min-width:0}
+.msg-text{font-size:.9rem;color:#333;word-wrap:break-word}
+.msg-time{font-size:.75rem;color:#888;margin-top:3px}
+.msg-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700;margin-top:5px}
+.msg-tag.sos{background:#E74C3C;color:white}
+.msg-tag.treino{background:#27AE60;color:white}
+.msg-tag.rotina{background:#3498DB;color:white}
+.msg-tag.fala{background:#667eea;color:white}
+
+/* HISTÓRICO DO DIA */
+.timeline{position:relative;padding-left:30px}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:#e0e0e0}
+.timeline-item{position:relative;margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid #f0f0f0}
+.timeline-item:last-child{border-bottom:none}
+.timeline-dot{position:absolute;left:-26px;width:14px;height:14px;border-radius:50%;background:#667eea;border:3px solid white;box-shadow:0 0 0 2px #667eea}
+.timeline-dot.sos{background:#E74C3C;box-shadow:0 0 0 2px #E74C3C}
+.timeline-dot.treino{background:#27AE60;box-shadow:0 0 0 2px #27AE60}
+.timeline-dot.rotina{background:#3498DB;box-shadow:0 0 0 2px #3498DB}
+.timeline-time{font-size:.8rem;color:#888;font-weight:600}
+.timeline-text{font-size:.9rem;color:#333;margin-top:3px}
+
+/* GRÁFICO SIMPLES */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:20px}
+.bar-chart-item{flex:1;text-align:center}
+.bar-chart-bar{background:linear-gradient(to top,#667eea,#764ba2);border-radius:6px 6px 0 0;transition:height .5s ease;min-height:4px}
+.bar-chart-label{font-size:.7rem;color:#666;margin-top:5px}
+.bar-chart-value{font-size:.8rem;font-weight:700;color:#667eea}
+
+/* PALAVRAS MAIS USADAS */
+.word-cloud{display:flex;flex-wrap:wrap;gap:8px}
+.word-tag{padding:6px 14px;border-radius:20px;background:#E3F2FD;color:#3498DB;font-size:.85rem;font-weight:600}
+.word-tag.frequente{background:#667eea;color:white;font-size:1rem}
+.word-tag.muito-frequente{background:#764ba2;color:white;font-size:1.15rem;padding:8px 18px}
+
+/* NOTIFICAÇÃO SOS */
+.sos-banner{background:#E74C3C;color:white;padding:15px 20px;border-radius:12px;margin-bottom:20px;display:none;align-items:center;gap:15px;animation:pulseSOS 2s infinite}
+.sos-banner.active{display:flex}
+@keyframes pulseSOS{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.4)}50%{box-shadow:0 0 20px rgba(231,76,60,.4)}}
+.sos-banner .icon{font-size:2rem}
+.sos-banner h3{font-size:1.1rem}
+.sos-banner p{font-size:.85rem;opacity:.9}
+
+/* CONQUISTAS */
+.conquistas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.conquista-item{text-align:center;padding:12px;border-radius:10px;background:#f8f9fa;transition:all .3s}
+.conquista-item.desbloqueada{background:#FFF8E1;border:2px solid #FFD700}
+.conquista-item .emoji{font-size:1.8rem;display:block;margin-bottom:5px}
+.conquista-item .nome{font-size:.7rem;color:#666;font-weight:600}
+.conquista-item.desbloqueada .nome{color:#333}
+
+/* CONFIG PAINEL */
+.config-panel{background:white;border-radius:15px;padding:20px;margin-bottom:20px}
+.config-panel h3{margin-bottom:15px;color:#2C3E50}
+.config-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0}
+.config-item:last-child{border-bottom:none}
+.config-item label{font-size:.9rem;color:#555}
+.config-item input[type="text"]{padding:8px 12px;border:2px solid #e0e0e0;border-radius:8px;font-size:.9rem;width:200px}
+.config-item button{padding:8px 16px;background:#667eea;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+
+/* RESPONSIVO */
+@media(max-width:768px){
+  .dashboard-grid{grid-template-columns:1fr}
+  .header{flex-direction:column;gap:10px;text-align:center}
+  .container{padding:15px}
+}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:#333;color:white;padding:12px 20px;border-radius:10px;font-size:.9rem;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* SEÇÃO VAZIA */
+.empty-state{text-align:center;padding:40px;color:#888}
+.empty-state .icon{font-size:3rem;margin-bottom:15px;display:block}
+.empty-state p{font-size:.9rem}
+
+/* TABS */
+.tabs{display:flex;gap:5px;margin-bottom:20px;background:white;padding:5px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.tab-btn{flex:1;padding:12px;border:none;border-radius:8px;background:transparent;color:#666;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s}
+.tab-btn.active{background:#667eea;color:white}
+
+/* CONEXÃO STATUS */
+.status-indicator{display:flex;align-items:center;gap:8px;font-size:.85rem}
+.status-dot{width:10px;height:10px;border-radius:50%;background:#27AE60;animation:pulse 2s infinite}
+.status-dot.offline{background:#E74C3C;animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h1>👨‍👩‍👧 Painel dos Pais</h1>
+    <p>Monitore a comunicação da sua criança em tempo real</p>
+    <div id="loginForm">
+      <p style="font-size:.85rem;color:#666;margin-bottom:10px">Digite o nome da criança para conectar:</p>
+      <input type="text" id="nomeCriancaInput" placeholder="Nome da criança" maxlength="20">
+      <button onclick="conectar()">🔗 CONECTAR</button>
+      <p style="font-size:.8rem;color:#888;margin-top:15px">Ou digite o código da família:</p>
+      <input type="text" id="codigoFamilia" placeholder="Código da família" maxlength="10">
+      <button onclick="conectarCodigo()" style="background:#764ba2">🔑 CONECTAR COM CÓDIGO</button>
+    </div>
+    <div id="qrSection" style="display:none;margin-top:20px">
+      <p style="font-size:.85rem;color:#666;margin-bottom:10px">Código da família:</p>
+      <div class="code-display" id="codigoDisplay">FALA1234</div>
+      <p style="font-size:.8rem;color:#888;margin-top:10px">Compartilhe este código com outros familiares</p>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <!-- SOS BANNER -->
+  <div class="sos-banner" id="sosBanner">
+    <span class="icon">🚨</span>
+    <div>
+      <h3>ALERTA DE EMERGÊNCIA!</h3>
+      <p id="sosTexto">Sua criança acionou o botão de SOS às <span id="sosHora"></span></p>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>📊 Falamigo - Painel dos Pais <span class="badge" id="statusBadge">Online</span></h1>
+    <div class="header-actions">
+      <div class="status-indicator">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Conectado</span>
+      </div>
+      <button onclick="mostrarCodigo()">🔑 Código</button>
+      <button onclick="exportarRelatorio()">📥 Exportar</button>
+      <button onclick="sair()">🚪 Sair</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarAba('dashboard')">📊 Dashboard</button>
+      <button class="tab-btn" onclick="mostrarAba('mensagens')">💬 Mensagens</button>
+      <button class="tab-btn" onclick="mostrarAba('historico')">📅 Histórico</button>
+      <button class="tab-btn" onclick="mostrarAba('config')">⚙️ Config</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="aba-dashboard">
+      <div class="dashboard-grid">
+        <div class="card stat-card">
+          <div class="number" id="totalMensagens">0</div>
+          <div class="label">Mensagens Hoje</div>
+          <div class="trend up" id="trendMensagens">+0 vs ontem</div>
+        </div>
+        <div class="card stat-card">
+          <div class="number" id="totalPalavras">0</div>
+          <div class="label">Palavras Faladas</div>
+          <div class="trend up" id="trendPalavras">Total geral</div>
+        </div>
+        <div class="card stat-card">
+          <div class="number" id="totalTreinos">0</div>
+          <div class="label">Treinos Hoje</div>
+          <div class="trend up" id="trendTreinos">+0 vs ontem</div>
+        </div>
+        <div class="card stat-card">
+          <div class="number" id="totalRotinas">0</div>
+          <div class="label">Rotinas Hoje</div>
+          <div class="trend up" id="trendRotinas">+0 vs ontem</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <h3><span class="icon">⏰</span>Atividade por Hora</h3>
+          <div class="bar-chart" id="graficoHoras">
+            <div class="bar-chart-item">
+              <div class="bar-chart-value">0</div>
+              <div class="bar-chart-bar" style="height:4px"></div>
+              <div class="bar-chart-label">Manhã</div>
+            </div>
+            <div class="bar-chart-item">
+              <div class="bar-chart-value">0</div>
+              <div class="bar-chart-bar" style="height:4px"></div>
+              <div class="bar-chart-label">Tarde</div>
+            </div>
+            <div class="bar-chart-item">
+              <div class="bar-chart-value">0</div>
+              <div class="bar-chart-bar" style="height:4px"></div>
+              <div class="bar-chart-label">Noite</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3><span class="icon">🏷️</span>Palavras Mais Usadas</h3>
+          <div class="word-cloud" id="palavrasMaisUsadas">
+            <div class="empty-state">
+              <span class="icon">📭</span>
+              <p>Nenhuma mensagem ainda</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3><span class="icon">🏆</span>Conquistas</h3>
+          <div class="conquistas-grid" id="conquistasPais">
+            <div class="conquista-item" id="conq1">
+              <span class="emoji">🏆</span>
+              <span class="nome">10 Palavras</span>
+            </div>
+            <div class="conquista-item" id="conq2">
+              <span class="emoji">⭐</span>
+              <span class="nome">5 Treinos</span>
+            </div>
+            <div class="conquista-item" id="conq3">
+              <span class="emoji">📋</span>
+              <span class="nome">3 Rotinas</span>
+            </div>
+            <div class="conquista-item" id="conq4">
+              <span class="emoji">🔥</span>
+              <span class="nome">7 Dias</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">💬</span>Mensagens Recentes</h3>
+        <div class="mensagens-list" id="mensagensRecentes">
+          <div class="empty-state">
+            <span class="icon">📭</span>
+            <p>Aguardando mensagens da criança...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENSAGENS -->
+    <div id="aba-mensagens" style="display:none">
+      <div class="card">
+        <h3><span class="icon">💬</span>Todas as Mensagens</h3>
+        <div style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap">
+          <button onclick="filtrarMensagens('todas')" style="padding:6px 14px;border:none;border-radius:20px;background:#667eea;color:white;font-weight:600;cursor:pointer">Todas</button>
+          <button onclick="filtrarMensagens('fala')" style="padding:6px 14px;border:none;border-radius:20px;background:#E3F2FD;color:#3498DB;font-weight:600;cursor:pointer">🗣️ Falas</button>
+          <button onclick="filtrarMensagens('sos')" style="padding:6px 14px;border:none;border-radius:20px;background:#FDE8E8;color:#E74C3C;font-weight:600;cursor:pointer">🚨 SOS</button>
+          <button onclick="filtrarMensagens('treino')" style="padding:6px 14px;border:none;border-radius:20px;background:#E8F5E9;color:#27AE60;font-weight:600;cursor:pointer">🎯 Treino</button>
+          <button onclick="filtrarMensagens('rotina')" style="padding:6px 14px;border:none;border-radius:20px;background:#E3F2FD;color:#3498DB;font-weight:600;cursor:pointer">📋 Rotina</button>
+        </div>
+        <div class="mensagens-list" id="todasMensagens">
+          <div class="empty-state">
+            <span class="icon">📭</span>
+            <p>Nenhuma mensagem registrada</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div id="aba-historico" style="display:none">
+      <div class="dashboard-grid">
+        <div class="card">
+          <h3><span class="icon">📅</span>Linha do Tempo - Hoje</h3>
+          <div class="timeline" id="timelineHoje">
+            <div class="empty-state">
+              <span class="icon">📭</span>
+              <p>Sem atividades hoje</p>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="icon">📊</span>Resumo Semanal</h3>
+          <div id="resumoSemanal">
+            <div class="bar-chart" id="graficoSemanal">
+              <div class="bar-chart-item">
+                <div class="bar-chart-value">0</div>
+                <div class="bar-chart-bar" style="height:4px"></div>
+                <div class="bar-chart-label">Seg</div>
+              </div>
+              <div class="bar-chart-item">
+                <div class="bar-chart-value">0</div>
+                <div class="bar-chart-bar" style="height:4px"></div>
+                <div class="bar-chart-label">Ter</div>
+              </div>
+              <div class="bar-chart-item">
+                <div class="bar-chart-value">0</div>
+                <div class="bar-chart-bar" style="height:4px"></div>
+                <div class="bar-chart-label">Qua</div>
+              </div>
+              <div class="bar-chart-item">
+                <div class="bar-chart-value">0</div>
+                <div class="bar-chart-bar" style="height:4px"></div>
+                <div class="bar-chart-label">Qui</div>
+              </div>
+              <div class="bar-chart-item">
+                <div class="bar-chart-value">0</div>
+                <div class="bar-chart-bar" style="height:4px"></div>
+                <div class="bar-chart-label">Sex</div>
+              </div>
+              <div class="bar-chart-item">
+                <div class="bar-chart-value">0</div>
+                <div class="bar-chart-bar" style="height:4px"></div>
+                <div class="bar-chart-label">Sáb</div>
+              </div>
+              <div class="bar-chart-item">
+                <div class="bar-chart-value">0</div>
+                <div class="bar-chart-bar" style="height:4px"></div>
+                <div class="bar-chart-label">Dom</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div id="aba-config" style="display:none">
+      <div class="config-panel">
+        <h3>⚙️ Configurações do Painel</h3>
+        <div class="config-item">
+          <label>Nome da criança</label>
+          <input type="text" id="configNome" readonly>
+        </div>
+        <div class="config-item">
+          <label>Código da família</label>
+          <input type="text" id="configCodigo" readonly>
+        </div>
+        <div class="config-item">
+          <label>Notificações SOS</label>
+          <button onclick="toggleNotificacoes()" id="btnNotif">🔔 Ativadas</button>
+        </div>
+        <div class="config-item">
+          <label>Exportar dados</label>
+          <button onclick="exportarRelatorio()">📥 Exportar JSON</button>
+        </div>
+        <div class="config-item">
+          <label>Limpar histórico</label>
+          <button onclick="limparHistorico()" style="background:#E74C3C">🗑️ Limpar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== ESTADO ==========
+var nomeCrianca = '';
+var codigoFamilia = '';
+var notifSOS = true;
+var filtroAtual = 'todas';
+var ultimoTimestamp = 0;
+
+// ========== UTILITÁRIOS ==========
+function mostrarToast(msg) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 3000);
+}
+
+function formatarHora(data) {
+  var d = new Date(data);
+  return d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+}
+
+function formatarData(data) {
+  var d = new Date(data);
+  return d.toLocaleDateString('pt-BR');
+}
+
+function hojeStr() {
+  return new Date().toLocaleDateString('pt-BR');
+}
+
+function gerarCodigo() {
+  return 'FALA' + Math.floor(1000 + Math.random() * 9000);
+}
+
+// ========== LOGIN ==========
+function conectar() {
+  var nome = document.getElementById('nomeCriancaInput').value.trim();
+  if(!nome) {
+    mostrarToast('Digite o nome da criança');
+    return;
+  }
+  nomeCrianca = nome;
+  
+  // Verifica se já existe um código salvo
+  var codigos = JSON.parse(localStorage.getItem('falamigo_codigos') || '{}');
+  if(codigos[nome]) {
+    codigoFamilia = codigos[nome];
+  } else {
+    codigoFamilia = gerarCodigo();
+    codigos[nome] = codigoFamilia;
+    localStorage.setItem('falamigo_codigos', JSON.stringify(codigos));
+  }
+  
+  entrarPainel();
+}
+
+function conectarCodigo() {
+  var codigo = document.getElementById('codigoFamilia').value.trim().toUpperCase();
+  if(!codigo) {
+    mostrarToast('Digite o código da família');
+    return;
+  }
+  
+  // Procura o nome associado ao código
+  var codigos = JSON.parse(localStorage.getItem('falamigo_codigos') || '{}');
+  var nome = null;
+  for(var n in codigos) {
+    if(codigos[n] === codigo) {
+      nome = n;
+      break;
+    }
+  }
+  
+  if(!nome) {
+    mostrarToast('Código não encontrado. Verifique se a criança já usou o app.');
+    return;
+  }
+  
+  nomeCrianca = nome;
+  codigoFamilia = codigo;
+  entrarPainel();
+}
+
+function entrarPainel() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('configNome').value = nomeCrianca;
+  document.getElementById('configCodigo').value = codigoFamilia;
+  
+  mostrarToast('Conectado a ' + nomeCrianca);
+  atualizarDados();
+  
+  // Atualiza a cada 2 segundos
+  setInterval(atualizarDados, 2000);
+}
+
+function mostrarCodigo() {
+  var codigos = JSON.parse(localStorage.getItem('falamigo_codigos') || '{}');
+  var codigo = codigos[nomeCrianca] || 'N/A';
+  mostrarToast('Código: ' + codigo);
+}
+
+function sair() {
+  nomeCrianca = '';
+  codigoFamilia = '';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('qrSection').style.display = 'none';
+}
+
+// ========== DADOS ==========
+function getMensagens() {
+  var todas = JSON.parse(localStorage.getItem('falamigo_mensagens') || '[]');
+  return todas.filter(function(m) {
+    return m.crianca === nomeCrianca;
+  });
+}
+
+function getEstatisticas() {
+  return JSON.parse(localStorage.getItem('falamigo_estatisticas_' + nomeCrianca) || '{}');
+}
+
+function getConquistas() {
+  return JSON.parse(localStorage.getItem('falamigo_conquistas_' + nomeCrianca) || '[]');
+}
+
+// ========== ATUALIZAR DADOS ==========
+function atualizarDados() {
+  if(!nomeCrianca) return;
+  
+  var mensagens = getMensagens();
+  var stats = getEstatisticas();
+  var hoje = hojeStr();
+  
+  // Contadores do dia
+  var msgsHoje = mensagens.filter(function(m) {
+    return formatarData(m.timestamp) === hoje;
+  });
+  
+  document.getElementById('totalMensagens').textContent = msgsHoje.length;
+  document.getElementById('totalPalavras').textContent = stats.palavrasFaladas || 0;
+  document.getElementById('totalTreinos').textContent = msgsHoje.filter(function(m) { return m.tipo === 'treino'; }).length;
+  document.getElementById('totalRotinas').textContent = msgsHoje.filter(function(m) { return m.tipo === 'rotina'; }).length;
+  
+  // Verifica SOS
+  var sosMsgs = mensagens.filter(function(m) { return m.tipo === 'sos'; });
+  var ultimoSOS = sosMsgs[sosMsgs.length - 1];
+  if(ultimoSOS) {
+    var sosBanner = document.getElementById('sosBanner');
+    var sosHora = new Date(ultimoSOS.timestamp);
+    var agora = new Date();
+    var diffMin = (agora - sosHora) / 60000;
+    if(diffMin < 30) {
+      sosBanner.classList.add('active');
+      document.getElementById('sosHora').textContent = formatarHora(ultimoSOS.timestamp);
+    } else {
+      sosBanner.classList.remove('active');
+    }
+  }
+  
+  // Atualiza mensagens recentes
+  atualizarMensagensRecentes(mensagens);
+  
+  // Atualiza todas as mensagens
+  atualizarTodasMensagens(mensagens);
+  
+  // Atualiza timeline
+  atualizarTimeline(mensagens);
+  
+  // Atualiza gráficos
+  atualizarGraficos(mensagens);
+  
+  // Atualiza palavras mais usadas
+  atualizarPalavrasMaisUsadas(mensagens);
+  
+  // Atualiza conquistas
+  atualizarConquistas();
+  
+  // Atualiza status
+  atualizarStatus();
+}
+
+function atualizarStatus() {
+  var ultimaMsg = getMensagens().pop();
+  var online = false;
+  if(ultimaMsg) {
+    var diff = (new Date() - new Date(ultimaMsg.timestamp)) / 1000;
+    online = diff < 30;
+  }
+  
+  var badge = document.getElementById('statusBadge');
+  var dot = document.getElementById('statusDot');
+  var txt = document.getElementById('statusText');
+  
+  if(online) {
+    badge.textContent = 'Online';
+    badge.className = 'badge';
+    dot.className = 'status-dot';
+    txt.textContent = 'Conectado';
+  } else {
+    badge.textContent = 'Offline';
+    badge.className = 'badge offline';
+    dot.className = 'status-dot offline';
+    txt.textContent = 'Aguardando...';
+  }
+}
+
+function atualizarMensagensRecentes(mensagens) {
+  var container = document.getElementById('mensagensRecentes');
+  var recentes = mensagens.slice(-10).reverse();
+  
+  if(recentes.length === 0) {
+    container.innerHTML = '<div class="empty-state"><span class="icon">📭</span><p>Aguardando mensagens da criança...</p></div>';
+    return;
+  }
+  
+  var html = '';
+  for(var i = 0; i < recentes.length; i++) {
+    var m = recentes[i];
+    var cls = m.tipo || 'fala';
+    var tag = m.tipo ? m.tipo.toUpperCase() : 'FALA';
+    var icones = {fala: '🗣️', sos: '🚨', treino: '🎯', rotina: '📋'};
+    
+    html += '<div class="msg-item ' + cls + (m.timestamp > ultimoTimestamp ? ' novo' : '') + '">';
+    html += '<div class="msg-avatar">' + (icones[m.tipo] || '💬') + '</div>';
+    html += '<div class="msg-content">';
+    html += '<div class="msg-text">' + (m.texto || m.mensagem || '-') + '</div>';
+    html += '<div class="msg-time">' + formatarHora(m.timestamp) + '</div>';
+    html += '<span class="msg-tag ' + cls + '">' + tag + '</span>';
+    html += '</div></div>';
+  }
+  
+  container.innerHTML = html;
+  if(recentes.length > 0) {
+    ultimoTimestamp = recentes[0].timestamp;
+  }
+}
+
+function atualizarTodasMensagens(mensagens) {
+  var container = document.getElementById('todasMensagens');
+  var filtradas = filtroAtual === 'todas' ? mensagens : mensagens.filter(function(m) { return m.tipo === filtroAtual; });
+  filtradas = filtradas.slice().reverse();
+  
+  if(filtradas.length === 0) {
+    container.innerHTML = '<div class="empty-state"><span class="icon">📭</span><p>Nenhuma mensagem' + (filtroAtual !== 'todas' ? ' deste tipo' : '') + '</p></div>';
+    return;
+  }
+  
+  var html = '';
+  for(var i = 0; i < filtradas.length; i++) {
+    var m = filtradas[i];
+    var cls = m.tipo || 'fala';
+    var tag = m.tipo ? m.tipo.toUpperCase() : 'FALA';
+    var icones = {fala: '🗣️', sos: '🚨', treino: '🎯', rotina: '📋'};
+    
+    html += '<div class="msg-item ' + cls + '">';
+    html += '<div class="msg-avatar">' + (icones[m.tipo] || '💬') + '</div>';
+    html += '<div class="msg-content">';
+    html += '<div class="msg-text">' + (m.texto || m.mensagem || '-') + '</div>';
+    html += '<div class="msg-time">' + formatarData(m.timestamp) + ' ' + formatarHora(m.timestamp) + '</div>';
+    html += '<span class="msg-tag ' + cls + '">' + tag + '</span>';
+    html += '</div></div>';
+  }
+  
+  container.innerHTML = html;
+}
+
+function filtrarMensagens(tipo) {
+  filtroAtual = tipo;
+  atualizarDados();
+}
+
+function atualizarTimeline(mensagens) {
+  var container = document.getElementById('timelineHoje');
+  var hoje = hojeStr();
+  var msgsHoje = mensagens.filter(function(m) { return formatarData(m.timestamp) === hoje; }).reverse();
+  
+  if(msgsHoje.length === 0) {
+    container.innerHTML = '<div class="empty-state"><span class="icon">📭</span><p>Sem atividades hoje</p></div>';
+    return;
+  }
+  
+  var html = '';
+  for(var i = 0; i < msgsHoje.length; i++) {
+    var m = msgsHoje[i];
+    var cls = m.tipo || 'fala';
+    html += '<div class="timeline-item">';
+    html += '<div class="timeline-dot ' + cls + '"></div>';
+    html += '<div class="timeline-time">' + formatarHora(m.timestamp) + '</div>';
+    html += '<div class="timeline-text">' + (m.texto || m.mensagem || '-') + '</div>';
+    html += '</div>';
+  }
+  
+  container.innerHTML = html;
+}
+
+function atualizarGraficos(mensagens) {
+  // Gráfico por período do dia
+  var manha = 0, tarde = 0, noite = 0;
+  var hoje = hojeStr();
+  
+  for(var i = 0; i < mensagens.length; i++) {
+    if(formatarData(mensagens[i].timestamp) !== hoje) continue;
+    var h = new Date(mensagens[i].timestamp).getHours();
+    if(h >= 6 && h < 12) manha++;
+    else if(h >= 12 && h < 18) tarde++;
+    else noite++;
+  }
+  
+  var maxVal = Math.max(manha, tarde, noite, 1);
+  var container = document.getElementById('graficoHoras');
+  container.innerHTML = '';
+  
+  var periodos = [
+    {label: 'Manhã', val: manha},
+    {label: 'Tarde', val: tarde},
+    {label: 'Noite', val: noite}
+  ];
+  
+  for(var j = 0; j < periodos.length; j++) {
+    var pct = (periodos[j].val / maxVal) * 100;
+    pct = Math.max(pct, 4);
+    container.innerHTML += '<div class="bar-chart-item"><div class="bar-chart-value">' + periodos[j].val + '</div><div class="bar-chart-bar" style="height:' + pct + 'px"></div><div class="bar-chart-label">' + periodos[j].label + '</div></div>';
+  }
+  
+  // Gráfico semanal
+  var diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  var semana = [0,0,0,0,0,0,0];
+  var agora = new Date();
+  
+  for(var k = 0; k < mensagens.length; k++) {
+    var d = new Date(mensagens[k].timestamp);
+    var diffDias = Math.floor((agora - d) / 86400000);
+    if(diffDias < 7) {
+      var diaSem = d.getDay();
+      semana[diaSem]++;
+    }
+  }
+  
+  var maxSem = Math.max.apply(null, semana.concat([1]));
+  var containerSem = document.getElementById('graficoSemanal');
+  containerSem.innerHTML = '';
+  
+  for(var d = 0; d < 7; d++) {
+    var pctSem = (semana[d] / maxSem) * 100;
+    pctSem = Math.max(pctSem, 4);
+    containerSem.innerHTML += '<div class="bar-chart-item"><div class="bar-chart-value">' + semana[d] + '</div><div class="bar-chart-bar" style="height:' + pctSem + 'px"></div><div class="bar-chart-label">' + diasSemana[d] + '</div></div>';
+  }
+}
+
+function atualizarPalavrasMaisUsadas(mensagens) {
+  var container = document.getElementById('palavrasMaisUsadas');
+  var palavras = {};
+  
+  for(var i = 0; i < mensagens.length; i++) {
+    var texto = mensagens[i].texto || mensagens[i].mensagem || '';
+    var parts = texto.split(/[\s,→]+/);
+    for(var j = 0; j < parts.length; j++) {
+      var p = parts[j].trim();
+      if(p.length > 2 && p !== 'undefined') {
+        palavras[p] = (palavras[p] || 0) + 1;
+      }
+    }
+  }
+  
+  var ordenadas = [];
+  for(var p in palavras) {
+    ordenadas.push({palavra: p, freq: palavras[p]});
+  }
+  ordenadas.sort(function(a, b) { return b.freq - a.freq; });
+  
+  if(ordenadas.length === 0) {
+    container.innerHTML = '<div class="empty-state"><span class="icon">📭</span><p>Nenhuma palavra registrada</p></div>';
+    return;
+  }
+  
+  var html = '';
+  var maxFreq = ordenadas[0].freq;
+  for(var k = 0; k < Math.min(ordenadas.length, 15); k++) {
+    var cls = ordenadas[k].freq >= maxFreq ? 'muito-frequente' : (ordenadas[k].freq >= maxFreq / 2 ? 'frequente' : '');
+    html += '<span class="word-tag ' + cls + '">' + ordenadas[k].palavra + ' (' + ordenadas[k].freq + ')</span>';
+  }
+  
+  container.innerHTML = html;
+}
+
+function atualizarConquistas() {
+  var stats = getEstatisticas();
+  var conquistas = getConquistas();
+  
+  document.getElementById('conq1').className = 'conquista-item' + ((stats.palavrasFaladas >= 10 || conquistas.indexOf('iniciante') >= 0) ? ' desbloqueada' : '');
+  document.getElementById('conq2').className = 'conquista-item' + ((stats.treinosCompletados >= 5 || conquistas.indexOf('treinador') >= 0) ? ' desbloqueada' : '');
+  document.getElementById('conq3').className = 'conquista-item' + ((stats.rotinasConcluidas >= 3 || conquistas.indexOf('organizado') >= 0) ? ' desbloqueada' : '');
+  document.getElementById('conq4').className = 'conquista-item' + ((stats.diasConsecutivos >= 7 || conquistas.indexOf('7dias') >= 0) ? ' desbloqueada' : '');
+}
+
+// ========== ABAS ==========
+function mostrarAba(aba) {
+  var abas = ['dashboard', 'mensagens', 'historico', 'config'];
+  for(var i = 0; i < abas.length; i++) {
+    document.getElementById('aba-' + abas[i]).style.display = abas[i] === aba ? 'block' : 'none';
+  }
+  var btns = document.querySelectorAll('.tab-btn');
+  for(var j = 0; j < btns.length; j++) {
+    btns[j].classList.remove('active');
+  }
+  event.target.classList.add('active');
+  atualizarDados();
+}
+
+// ========== CONFIGURAÇÕES ==========
+function toggleNotificacoes() {
+  notifSOS = !notifSOS;
+  document.getElementById('btnNotif').textContent = notifSOS ? '🔔 Ativadas' : '🔕 Desativadas';
+  mostrarToast('Notificações SOS ' + (notifSOS ? 'ativadas' : 'desativadas'));
+}
+
+function exportarRelatorio() {
+  var dados = {
+    nomeCrianca: nomeCrianca,
+    codigoFamilia: codigoFamilia,
+    dataExportacao: new Date().toISOString(),
+    mensagens: getMensagens(),
+    estatisticas: getEstatisticas(),
+    conquistas: getConquistas()
+  };
+  
+  var blob = new Blob([JSON.stringify(dados, null, 2)], {type: 'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'falamigo_relatorio_' + nomeCrianca + '_' + new Date().toLocaleDateString('pt-BR').replace(/\//g, '-') + '.json';
+  a.click();
+  mostrarToast('Relatório exportado!');
+}
+
+function limparHistorico() {
+  if(!confirm('Tem certeza que deseja limpar todo o histórico de mensagens?')) return;
+  var todas = JSON.parse(localStorage.getItem('falamigo_mensagens') || '[]');
+  todas = todas.filter(function(m) { return m.crianca !== nomeCrianca; });
+  localStorage.setItem('falamigo_mensagens', JSON.stringify(todas));
+  mostrarToast('Histórico limpo!');
+  atualizarDados();
+}
+
+// ========== INICIALIZAÇÃO ==========
+window.onload = function() {
+  // Verifica se há nome nos parâmetros da URL
+  var params = new URLSearchParams(window.location.search);
+  var nome = params.get('crianca');
+  if(nome) {
+    document.getElementById('nomeCriancaInput').value = nome;
+  }
+};
+</script>
+</body>
+</html>
