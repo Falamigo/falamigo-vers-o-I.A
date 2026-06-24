@@ -1,1 +1,936 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>FALAMIGO IA - Comunicador Inteligente</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#E3F2FD;height:100vh;overflow:hidden}
+
+.splash{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;transition:opacity .5s}
+.splash.hide{opacity:0;pointer-events:none}
+.splash .mascote{width:180px;height:180px;border-radius:50%;display:flex;align-items:center;justify-content:center;animation:float 3s ease-in-out infinite;box-shadow:0 10px 40px rgba(0,0,0,.3);overflow:hidden;border:4px solid rgba(255,255,255,.3);background:linear-gradient(135deg,#FFD93D,#F6AD55);font-size:5rem}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+.splash .mascote video,.mascote-flutuante video,.avatar video,.ia-avatar video,.mascote-mini video{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.splash h1{color:white;font-size:2.5rem;margin-top:15px}
+.splash p{color:rgba(255,255,255,.8);margin:5px 0 20px}
+.splash input{padding:15px;border:none;border-radius:12px;font-size:1.1rem;text-align:center;width:280px;margin-bottom:10px}
+.splash button{padding:15px 50px;background:white;color:#667eea;border:none;border-radius:30px;font-size:1.2rem;font-weight:700;cursor:pointer}
+
+.app{display:none;flex-direction:column;height:100vh;max-width:600px;margin:0 auto;background:#E3F2FD}
+.app.on{display:flex}
+
+.header{background:#2C3E50;color:white;padding:12px;text-align:center}
+.header h1{font-size:1.3rem}
+
+.display{background:#3498DB;color:white;padding:15px;min-height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1.1rem;font-weight:600;word-wrap:break-word}
+
+.controls{display:flex;gap:5px;padding:8px;background:white}
+.controls button{flex:1;padding:10px;border:none;border-radius:8px;font-size:.85rem;font-weight:700;color:white;cursor:pointer}
+.btn-falar{background:#27AE60}.btn-desfazer{background:#F39C12}.btn-limpar{background:#E74C3C}
+
+.content{flex:1;overflow-y:auto;padding:10px}
+
+.tabs{display:flex;gap:5px;margin-bottom:10px;overflow-x:auto;padding-bottom:5px}
+.tab-btn{padding:10px 15px;border:none;border-radius:20px;font-size:.8rem;font-weight:700;color:white;cursor:pointer;white-space:nowrap}
+.tab-btn.active{box-shadow:0 0 0 3px rgba(0,0,0,.2)}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card-btn{padding:20px 10px;border:none;border-radius:12px;font-size:1rem;font-weight:700;color:white;cursor:pointer;transition:all .2s;min-height:80px;display:flex;align-items:center;justify-content:center;text-align:center}
+.card-btn:hover{filter:brightness(1.1);transform:translateY(-2px)}
+
+.add-form{background:white;padding:15px;border-radius:12px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.add-form h3{color:#2C3E50;margin-bottom:10px;font-size:1rem}
+.add-form input,.add-form select{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:1rem;margin-bottom:8px;outline:none}
+.add-form input:focus,.add-form select:focus{border-color:#3498DB}
+.add-form button{width:100%;padding:12px;background:#27AE60;color:white;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer}
+
+.nav{display:flex;background:white;box-shadow:0 -2px 10px rgba(0,0,0,.1)}
+.nav button{flex:1;padding:10px 5px;border:none;background:white;color:#666;font-size:.7rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav button.on{background:#2C3E50;color:white}
+.nav button .ico{font-size:1.3rem}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:12px 24px;border-radius:25px;font-size:.9rem;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.modal.on{display:flex}
+.modal-box{background:white;border-radius:20px;padding:25px;max-width:350px;width:100%;text-align:center}
+.modal-box h2{margin-bottom:15px;color:#2C3E50}
+.modal-box button{width:100%;padding:12px;margin:5px 0;border:none;border-radius:10px;font-size:1rem;font-weight:700;color:white;cursor:pointer}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+
+.card-btn-wrap{display:flex;align-items:center;gap:8px;width:100%}
+.card-btn-wrap .card-btn{flex:1}
+.mascote-mini{width:50px;height:50px;border-radius:50%;overflow:hidden;border:2px solid #3498DB;flex-shrink:0;background:white;box-shadow:0 2px 8px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:1.8rem}
+.mascote-mini.falando{border-color:#E74C3C;animation:mascotePular .4s ease infinite alternate}
+@keyframes mascotePular{from{transform:scale(1) translateY(0)}to{transform:scale(1.1) translateY(-4px)}}
+
+/* IA FALAMIGO */
+.ia-container{background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);border-radius:15px;padding:15px;margin-bottom:15px;color:white;box-shadow:0 4px 15px rgba(102,126,234,.4)}
+.ia-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ia-avatar{width:50px;height:50px;border-radius:50%;border:3px solid white;background:linear-gradient(135deg,#FFD93D,#F6AD55);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0}
+.ia-info{flex:1}
+.ia-info h3{margin:0;font-size:1.1rem}
+.ia-info p{margin:0;font-size:.8rem;opacity:.9}
+.ia-status{display:flex;align-items:center;gap:5px;font-size:.75rem}
+.ia-status-dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.ia-chat{background:rgba(255,255,255,.15);border-radius:10px;padding:10px;min-height:80px;margin-bottom:10px;font-size:.9rem;line-height:1.5}
+.ia-typing{display:none;align-items:center;gap:5px;font-size:.8rem;font-style:italic;opacity:.8}
+.ia-typing.on{display:flex}
+.ia-typing span{animation:typingDot 1.4s infinite}
+.ia-typing span:nth-child(2){animation-delay:.2s}
+.ia-typing span:nth-child(3){animation-delay:.4s}
+@keyframes typingDot{0%,60%,100%{opacity:0}30%{opacity:1}}
+.ia-input-area{display:flex;gap:8px}
+.ia-input-area input{flex:1;padding:10px;border:none;border-radius:8px;font-size:.9rem;outline:none}
+.ia-input-area button{padding:10px 15px;border:none;border-radius:8px;background:#2ecc71;color:white;font-weight:700;cursor:pointer;font-size:.85rem}
+.ia-suggestions{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+.ia-suggestion{padding:6px 12px;background:rgba(255,255,255,.2);border:none;border-radius:15px;color:white;font-size:.75rem;cursor:pointer;transition:all .2s}
+.ia-suggestion:hover{background:rgba(255,255,255,.3)}
+
+/* ROTINAS */
+.rotina-card{background:white;border-radius:12px;padding:15px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.rotina-card h4{color:#2C3E50;margin-bottom:8px;font-size:1rem;display:flex;align-items:center;gap:8px}
+.rotina-card h4 .numero{width:28px;height:28px;border-radius:50%;background:#3498DB;color:white;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.rotina-passos{display:flex;gap:8px;overflow-x:auto;padding-bottom:5px}
+.rotina-passo{min-width:80px;text-align:center;padding:10px;border-radius:10px;background:#f0f4f8;cursor:pointer;transition:all .2s;border:2px solid transparent}
+.rotina-passo:hover{border-color:#3498DB}
+.rotina-passo.ativo{background:#3498DB;color:white}
+.rotina-passo.concluido{background:#27AE60;color:white;opacity:.8}
+.rotina-passo .emoji{font-size:2rem;display:block;margin-bottom:5px}
+.rotina-passo .texto{font-size:.75rem;font-weight:600}
+.rotina-progresso{height:6px;background:#e0e0e0;border-radius:3px;margin-top:10px;overflow:hidden}
+.rotina-progresso-barra{height:100%;background:linear-gradient(90deg,#3498DB,#2ecc71);border-radius:3px;transition:width .5s;width:0%}
+.rotina-timer{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:8px;background:#FFF3E0;border-radius:8px;color:#E65100;font-weight:700;font-size:1.1rem}
+.rotina-timer button{padding:5px 10px;border:none;border-radius:5px;background:#E65100;color:white;font-size:.8rem;cursor:pointer}
+
+/* TREINO DE FALA */
+.treino-card{background:white;border-radius:12px;padding:15px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.1);text-align:center}
+.treino-card h4{color:#2C3E50;margin-bottom:10px;font-size:1.1rem}
+.treino-palavra{font-size:2.5rem;font-weight:800;color:#3498DB;margin:15px 0;padding:20px;background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:15px}
+.treino-fonema{font-size:1.2rem;color:#7B68EE;margin-bottom:10px;font-weight:600}
+.treino-dica{font-size:.85rem;color:#666;margin-bottom:15px;padding:10px;background:#FFF8E1;border-radius:8px;border-left:4px solid #FFC107}
+.treino-botoes{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.treino-botoes button{padding:12px 20px;border:none;border-radius:10px;font-size:.9rem;font-weight:700;color:white;cursor:pointer;transition:all .2s}
+.treino-btn-ouvir{background:#3498DB}
+.treino-btn-repetir{background:#27AE60}
+.treino-btn-proxima{background:#9B59B6}
+.treino-btn-ouvir:active,.treino-btn-repetir:active,.treino-btn-proxima:active{transform:scale(.95)}
+.treino-nivel{display:flex;justify-content:center;gap:5px;margin-top:10px}
+.treino-estrela{font-size:1.5rem;color:#FFD700;opacity:.3;transition:opacity .3s}
+.treino-estrela.ativa{opacity:1}
+.treino-feedback{font-size:1rem;margin-top:10px;padding:10px;border-radius:8px;font-weight:600;min-height:44px;display:flex;align-items:center;justify-content:center}
+.treino-feedback.acerto{background:#D4EDDA;color:#155724}
+.treino-feedback.erro{background:#F8D7DA;color:#721C24}
+.treino-feedback.neutro{background:#E2E3E5;color:#383D41}
+.treino-categoria{display:flex;gap:8px;overflow-x:auto;padding:5px;margin-bottom:10px}
+.treino-cat-btn{padding:8px 15px;border:none;border-radius:20px;background:#e0e0e0;color:#555;font-size:.8rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.treino-cat-btn.ativa{background:#3498DB;color:white}
+
+/* MASCOTE FLUTUANTE */
+.mascote-flutuante{position:fixed;bottom:80px;right:15px;width:60px;height:60px;border-radius:50%;overflow:hidden;border:3px solid white;box-shadow:0 4px 15px rgba(0,0,0,.3);z-index:9998;background:linear-gradient(135deg,#FFD93D,#F6AD55);cursor:pointer;transition:transform .3s;display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+.mascote-flutuante:hover{transform:scale(1.1)}
+.mascote-flutuante.pulando{animation:mascotePular .6s ease infinite alternate}
+.mascote-flutuante .notificacao{position:absolute;top:-5px;right:-5px;width:22px;height:22px;border-radius:50%;background:#E74C3C;color:white;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid white}
+
+/* PAINEL IA */
+.painel-ia{position:fixed;bottom:150px;right:15px;width:280px;background:white;border-radius:15px;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:9997;padding:15px;display:none;flex-direction:column;gap:10px}
+.painel-ia.on{display:flex}
+.painel-ia-header{display:flex;align-items:center;gap:10px;border-bottom:2px solid #f0f0f0;padding-bottom:10px}
+.painel-ia-header .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#FFD93D,#F6AD55);display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+.painel-ia-header h4{flex:1;margin:0;color:#2C3E50;font-size:1rem}
+.painel-ia-header .fechar{background:none;border:none;font-size:1.5rem;color:#999;cursor:pointer}
+.painel-ia-mensagens{max-height:200px;overflow-y:auto;padding:5px;display:flex;flex-direction:column;gap:8px}
+.msg-ia{background:#f0f4f8;padding:10px;border-radius:10px;font-size:.85rem;color:#2C3E50;align-self:flex-start;max-width:90%}
+.msg-ia.ia-resposta{background:linear-gradient(135deg,#667eea,#764ba2);color:white}
+.painel-ia-acoes{display:flex;gap:5px;flex-wrap:wrap}
+.painel-ia-acoes button{padding:8px 12px;border:none;border-radius:8px;background:#E3F2FD;color:#3498DB;font-size:.75rem;font-weight:700;cursor:pointer;flex:1;min-width:80px}
+.painel-ia-acoes button:hover{background:#3498DB;color:white}
+
+/* INDICADOR DE FALA */
+.onda-fala{display:flex;align-items:center;justify-content:center;gap:3px;height:30px;margin:10px 0}
+.onda-barra{width:4px;background:#3498DB;border-radius:2px;animation:onda 1s ease-in-out infinite}
+.onda-barra:nth-child(1){height:10px;animation-delay:0s}
+.onda-barra:nth-child(2){height:20px;animation-delay:.1s}
+.onda-barra:nth-child(3){height:15px;animation-delay:.2s}
+.onda-barra:nth-child(4){height:25px;animation-delay:.3s}
+.onda-barra:nth-child(5){height:12px;animation-delay:.4s}
+@keyframes onda{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.5)}}
+.onda-fala.parado .onda-barra{animation:none;height:4px}
+
+/* ESTATÍSTICAS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}
+.stat-card{background:white;border-radius:12px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.stat-card .numero{font-size:1.8rem;font-weight:800;color:#3498DB}
+.stat-card .label{font-size:.75rem;color:#666;margin-top:3px}
+.stat-card .icone{font-size:1.5rem;margin-bottom:5px}
+
+/* GRAVADOR DE VOZ */
+.gravador-area{display:flex;flex-direction:column;align-items:center;gap:10px;padding:15px;background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:12px;margin-bottom:10px}
+.gravador-btn{width:70px;height:70px;border-radius:50%;border:none;background:#E74C3C;color:white;font-size:1.8rem;cursor:pointer;box-shadow:0 4px 15px rgba(231,76,60,.4);transition:all .3s;display:flex;align-items:center;justify-content:center}
+.gravador-btn:hover{transform:scale(1.05)}
+.gravador-btn.gravando{animation:pulseGravar 1.5s infinite;background:#c0392b}
+@keyframes pulseGravar{0%{box-shadow:0 0 0 0 rgba(231,76,60,.7)}70%{box-shadow:0 0 0 20px rgba(231,76,60,0)}100%{box-shadow:0 0 0 0 rgba(231,76,60,0)}}
+.gravador-texto{font-size:.9rem;color:#2E7D32;font-weight:600}
+.gravador-resultado{font-size:1.1rem;color:#2C3E50;font-weight:700;min-height:30px;text-align:center}
+
+/* CONQUISTAS */
+.conquistas{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.conquista{width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:#f0f0f0;border:2px solid #ddd;opacity:.5;transition:all .3s}
+.conquista.desbloqueada{opacity:1;border-color:#FFD700;background:#FFF8E1;box-shadow:0 2px 8px rgba(255,215,0,.3)}
+
+/* CONFIGURAÇÕES */
+.config-section{background:white;border-radius:12px;padding:15px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.config-section h4{color:#2C3E50;margin-bottom:10px;font-size:1rem;border-bottom:2px solid #f0f0f0;padding-bottom:5px}
+.config-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0}
+.config-item:last-child{border-bottom:none}
+.config-item label{font-size:.9rem;color:#555}
+.config-item input[type="range"]{width:120px}
+.config-item .toggle{position:relative;width:50px;height:26px;background:#ccc;border-radius:13px;cursor:pointer;transition:background .3s}
+.config-item .toggle.ativo{background:#27AE60}
+.config-item .toggle::after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:white;top:2px;left:2px;transition:transform .3s}
+.config-item .toggle.ativo::after{transform:translateX(24px)}
+
+/* BOTÃO SOS */
+.btn-sos{position:fixed;bottom:150px;left:15px;width:55px;height:55px;border-radius:50%;background:#E74C3C;color:white;border:none;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 15px rgba(231,76,60,.4);z-index:9996;display:flex;align-items:center;justify-content:center;animation:pulseSOS 2s infinite}
+@keyframes pulseSOS{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div class="splash" id="splash">
+  <video class="mascote" src="mascote.mp4" autoplay muted loop playsinline></video>
+  <h1>FALAMIGO</h1>
+  <p>Seu assistente de comunicação</p>
+  <input type="text" id="nomeUser" placeholder="Digite seu nome" maxlength="20">
+  <button onclick="entrarApp()">ENTRAR</button>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="header"><h1 id="tituloApp">FALAMIGO - Comunicador</h1></div>
+  <div class="display" id="display">Clique nos botões para formar frases</div>
+  <div class="controls">
+    <button class="btn-falar" onclick="falar()">🔊 FALAR</button>
+    <button class="btn-desfazer" onclick="desfazer()">↩️ DESFAZER</button>
+    <button class="btn-limpar" onclick="limpar()">🗑️ LIMPAR</button>
+  </div>
+  <div class="content" id="content"></div>
+  <div class="nav" id="nav">
+    <button onclick="mostrarSecao('comunicar')" class="on"><span class="ico">💬</span>Comunicar</button>
+    <button onclick="mostrarSecao('rotinas')"><span class="ico">📋</span>Rotinas</button>
+    <button onclick="mostrarSecao('treino')"><span class="ico">🎯</span>Treino</button>
+    <button onclick="mostrarSecao('ia')"><span class="ico">🤖</span>IA</button>
+    <button onclick="mostrarSecao('config')"><span class="ico">⚙️</span>Config</button>
+  </div>
+</div>
+
+<!-- MASCOTE FLUTUANTE IA -->
+<div class="mascote-flutuante" id="mascoteIA" onclick="togglePainelIA()">
+  <video src="mascote.mp4" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;border-radius:50%"></video>
+  <div class="notificacao" id="notifIA" style="display:none">1</div>
+</div>
+
+<!-- PAINEL IA -->
+<div class="painel-ia" id="painelIA">
+  <div class="painel-ia-header">
+    <div class="avatar"><video src="mascote.mp4" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;border-radius:50%"></video></div>
+    <h4>Falamigo IA</h4>
+    <button class="fechar" onclick="togglePainelIA()">×</button>
+  </div>
+  <div class="painel-ia-mensagens" id="mensagensIA">
+    <div class="msg-ia ia-resposta">
+      <div style="text-align:center;margin-bottom:5px"><video src="mascote.mp4" autoplay muted loop playsinline style="width:40px;height:40px;object-fit:cover;border-radius:50%"></video></div>
+      Olá! Sou o Falamigo! Estou aqui para ajudar você a se comunicar melhor. Como posso ajudar hoje?
+    </div>
+  </div>
+  <div class="painel-ia-acoes">
+    <button onclick="acaoIA('rotina')">📋 Rotina</button>
+    <button onclick="acaoIA('treino')">🎯 Treino</button>
+    <button onclick="acaoIA('animar')">🎵 Animar</button>
+    <button onclick="acaoIA('ajuda')">❓ Ajuda</button>
+  </div>
+</div>
+
+<!-- BOTÃO SOS -->
+<button class="btn-sos" onclick="sos()">🚨</button>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== DADOS E ESTADO ==========
+var nomeUsuario = '';
+var fraseAtual = [];
+var secaoAtual = 'comunicar';
+var rotinaAtiva = null;
+var passoAtual = 0;
+var treinoAtual = 0;
+var categoriaTreino = 'basico';
+var estatisticas = { palavrasFaladas: 0, treinosCompletados: 0, rotinasConcluidas: 0, diasConsecutivos: 1 };
+var conquistas = [];
+
+var dadosComunicar = {
+  'Quero': [
+    {texto: 'Água', cor: '#3498DB', emoji: '💧'},
+    {texto: 'Comida', cor: '#E74C3C', emoji: '🍽️'},
+    {texto: 'Brincar', cor: '#F39C12', emoji: '🎮'},
+    {texto: 'Dormir', cor: '#9B59B6', emoji: '😴'},
+    {texto: 'Banheiro', cor: '#1ABC9C', emoji: '🚽'},
+    {texto: 'Sair', cor: '#27AE60', emoji: '🚪'}
+  ],
+  'Sinto': [
+    {texto: 'Feliz', cor: '#F1C40F', emoji: '😊'},
+    {texto: 'Triste', cor: '#3498DB', emoji: '😢'},
+    {texto: 'Com fome', cor: '#E67E22', emoji: '😋'},
+    {texto: 'Com sede', cor: '#3498DB', emoji: '😅'},
+    {texto: 'Cansado', cor: '#9B59B6', emoji: '😫'},
+    {texto: 'Com dor', cor: '#E74C3C', emoji: '🤕'}
+  ],
+  'Preciso': [
+    {texto: 'Ajuda', cor: '#E74C3C', emoji: '🆘'},
+    {texto: 'Abraço', cor: '#E91E63', emoji: '🤗'},
+    {texto: 'Mamãe', cor: '#FF5722', emoji: '👩'},
+    {texto: 'Papai', cor: '#2196F3', emoji: '👨'},
+    {texto: 'Médico', cor: '#4CAF50', emoji: '👨‍⚕️'},
+    {texto: 'Remédio', cor: '#FF9800', emoji: '💊'}
+  ]
+};
+
+var rotinas = [
+  {
+    nome: 'Higiene Matinal',
+    emoji: '🌅',
+    passos: [
+      {emoji: '🛏️', texto: 'Acordar', tempo: 5},
+      {emoji: '🚽', texto: 'Banheiro', tempo: 10},
+      {emoji: '🪥', texto: 'Escovar dentes', tempo: 5},
+      {emoji: '🚿', texto: 'Banho', tempo: 15},
+      {emoji: '👕', texto: 'Vestir', tempo: 10},
+      {emoji: '🍳', texto: 'Café', tempo: 20}
+    ]
+  },
+  {
+    nome: 'Hora de Dormir',
+    emoji: '🌙',
+    passos: [
+      {emoji: '🍽️', texto: 'Jantar', tempo: 30},
+      {emoji: '🪥', texto: 'Escovar dentes', tempo: 5},
+      {emoji: '🚿', texto: 'Banho', tempo: 15},
+      {emoji: '👕', texto: 'Pijama', tempo: 10},
+      {emoji: '📖', texto: 'História', tempo: 15},
+      {emoji: '😴', texto: 'Dormir', tempo: 5}
+    ]
+  },
+  {
+    nome: 'Hora da Escola',
+    emoji: '🎒',
+    passos: [
+      {emoji: '🎒', texto: 'Mochila', tempo: 10},
+      {emoji: '👟', texto: 'Sapatos', tempo: 5},
+      {emoji: '🚗', texto: 'Carro', tempo: 15},
+      {emoji: '🏫', texto: 'Escola', tempo: 5},
+      {emoji: '👋', texto: 'Tchau', tempo: 2}
+    ]
+  }
+];
+
+var palavrasTreino = {
+  'basico': [
+    {palavra: 'Mamãe', fonema: 'MA-MA', dica: 'Feche os lábios e diga "MA"', emoji: '👩'},
+    {palavra: 'Papai', fonema: 'PA-PA', dica: 'Junte os lábios e solte o ar dizendo "PA"', emoji: '👨'},
+    {palavra: 'Água', fonema: 'A-GUA', dica: 'Abra bem a boca para o "A"', emoji: '💧'},
+    {palavra: 'Bola', fonema: 'BO-LA', dica: 'Arredonde os lábios para o "O"', emoji: '⚽'},
+    {palavra: 'Mais', fonema: 'MAIS', dica: 'Sorria ao dizer "MAIS"', emoji: '➕'}
+  ],
+  'intermediario': [
+    {palavra: 'Brincar', fonema: 'BRIN-CAR', dica: 'Vibre os lábios para o "BR"', emoji: '🎮'},
+    {palavra: 'Comer', fonema: 'CO-MER', dica: 'Arredonde bem a boca para o "CO"', emoji: '🍽️'},
+    {palavra: 'Dormir', fonema: 'DOR-MIR', dica: 'Toque a língua no céu da boca para o "R"', emoji: '😴'},
+    {palavra: 'Escola', fonema: 'ES-CO-LA', dica: 'Sorria para o "LA" no final', emoji: '🏫'},
+    {palavra: 'Feliz', fonema: 'FE-LIZ', dica: 'Mostre os dentes para o "FE"', emoji: '😊'}
+  ],
+  'avancado': [
+    {palavra: 'Parabéns', fonema: 'PA-RA-BENS', dica: 'Bata palmas enquanto fala', emoji: '🎉'},
+    {palavra: 'Obrigado', fonema: 'O-BRI-GA-DO', dica: 'Coloque a mão no peito', emoji: '🙏'},
+    {palavra: 'Eu quero', fonema: 'EU QUE-RO', dica: 'Aponte para si mesmo no "EU"', emoji: '👉'},
+    {palavra: 'Por favor', fonema: 'POR FA-VOR', dica: 'Junte as mãos como se estivesse pedindo', emoji: '🤲'},
+    {palavra: 'Te amo', fonema: 'TE A-MO', dica: 'Faça um coração com as mãos', emoji: '❤️'}
+  ]
+};
+
+var respostasIA = {
+  'oi': ['Olá! Que bom te ver! 🦕', 'Oi! Como você está hoje? 😊', 'Olá! Vamos nos comunicar hoje? 🌟'],
+  'tudo bem': ['Estou bem, obrigado! E você? 🦕', 'Tudo ótimo! Pronto para aprender? 📚'],
+  'rotina': ['Vamos ver sua rotina! Qual atividade vamos fazer? 📋', 'Rotinas ajudam a organizar o dia! Vamos lá? 🌅'],
+  'treino': ['Vamos treinar a fala! Qual palavra você quer praticar? 🎯', 'Treinar é divertido! Vamos começar? 🎮'],
+  'ajuda': ['Estou aqui para ajudar! O que você precisa? 🆘', 'Posso ajudar com comunicação, rotinas ou treino de fala! 🤖'],
+  'default': ['Que interessante! Me conta mais! 🦕', 'Entendi! Quer que eu ajude com algo? 🤔', 'Legal! Vamos praticar juntos? 📚']
+};
+
+// ========== REGISTRO PARA PAIS ==========
+function registrarMensagem(tipo, texto) {
+  if(!nomeUsuario) return;
+  var msgs = JSON.parse(localStorage.getItem('falamigo_mensagens') || '[]');
+  msgs.push({crianca: nomeUsuario, tipo: tipo, texto: texto, timestamp: new Date().toISOString()});
+  if(msgs.length > 500) msgs = msgs.slice(-500);
+  localStorage.setItem('falamigo_mensagens', JSON.stringify(msgs));
+}
+function salvarEstatisticas() {
+  if(!nomeUsuario) return;
+  localStorage.setItem('falamigo_estatisticas_' + nomeUsuario, JSON.stringify(estatisticas));
+}
+function gerarCodigoFamilia() {
+  if(!nomeUsuario) return '';
+  var codigos = JSON.parse(localStorage.getItem('falamigo_codigos') || '{}');
+  if(!codigos[nomeUsuario]) { codigos[nomeUsuario] = 'FALA' + Math.floor(1000 + Math.random() * 9000); localStorage.setItem('falamigo_codigos', JSON.stringify(codigos)); }
+  return codigos[nomeUsuario];
+}
+function abrirPainelPais() { window.open('painel-pais.html?crianca=' + encodeURIComponent(nomeUsuario), '_blank'); }
+
+// ========== FUNÇÕES PRINCIPAIS ==========
+function entrarApp() {
+  nomeUsuario = document.getElementById('nomeUser').value || 'Amigo';
+  gerarCodigoFamilia();
+  salvarEstatisticas();
+  registrarMensagem('fala', nomeUsuario + ' entrou no app');
+  document.getElementById('splash').classList.add('hide');
+  setTimeout(function() {
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('app').classList.add('on');
+    mostrarSecao('comunicar');
+    falarTexto('Bem vindo, ' + nomeUsuario + '! Eu sou o Falamigo!');
+  }, 500);
+}
+
+function mostrarSecao(secao) {
+  secaoAtual = secao;
+  var content = document.getElementById('content');
+  var navButtons = document.getElementById('nav').getElementsByTagName('button');
+  
+  for(var i = 0; i < navButtons.length; i++) {
+    navButtons[i].classList.remove('on');
+  }
+  
+  var index = ['comunicar','rotinas','treino','ia','config'].indexOf(secao);
+  if(index >= 0) navButtons[index].classList.add('on');
+  
+  switch(secao) {
+    case 'comunicar': renderComunicar(); break;
+    case 'rotinas': renderRotinas(); break;
+    case 'treino': renderTreino(); break;
+    case 'ia': renderIA(); break;
+    case 'config': renderConfig(); break;
+  }
+}
+
+function renderComunicar() {
+  var html = '<div class="tabs">';
+  var categorias = Object.keys(dadosComunicar);
+  for(var i = 0; i < categorias.length; i++) {
+    html += '<button class="tab-btn ' + (i === 0 ? 'active' : '') + '" style="background:' + getCorCategoria(categorias[i]) + '" onclick="mostrarCategoria(\'' + categorias[i] + '\')">' + categorias[i] + '</button>';
+  }
+  html += '</div><div id="gridComunicar" class="grid">';
+  
+  var items = dadosComunicar[categorias[0]];
+  for(var j = 0; j < items.length; j++) {
+    html += '<div class="card-btn-wrap"><div class="mascote-mini" id="mascote' + j + '"><video src="mascote.mp4" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;border-radius:50%"></video></div><button class="card-btn" style="background:' + items[j].cor + '" onclick="adicionarPalavra(\'' + items[j].texto + '\', ' + j + ')">' + items[j].emoji + ' ' + items[j].texto + '</button></div>';
+  }
+  html += '</div>';
+  document.getElementById('content').innerHTML = html;
+}
+
+function getCorCategoria(cat) {
+  var cores = {'Quero': '#3498DB', 'Sinto': '#E74C3C', 'Preciso': '#27AE60'};
+  return cores[cat] || '#3498DB';
+}
+
+function mostrarCategoria(cat) {
+  var buttons = document.querySelectorAll('.tab-btn');
+  for(var i = 0; i < buttons.length; i++) buttons[i].classList.remove('active');
+  event.target.classList.add('active');
+  
+  var html = '';
+  var items = dadosComunicar[cat];
+  for(var j = 0; j < items.length; j++) {
+    html += '<div class="card-btn-wrap"><div class="mascote-mini" id="mascote' + j + '"><video src="mascote.mp4" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;border-radius:50%"></video></div><button class="card-btn" style="background:' + items[j].cor + '" onclick="adicionarPalavra(\'' + items[j].texto + '\', ' + j + ')">' + items[j].emoji + ' ' + items[j].texto + '</button></div>';
+  }
+  document.getElementById('gridComunicar').innerHTML = html;
+}
+
+function adicionarPalavra(palavra, index) {
+  fraseAtual.push(palavra);
+  atualizarDisplay();
+  
+  var mascote = document.getElementById('mascote' + index);
+  if(mascote) {
+    mascote.classList.add('falando');
+    setTimeout(function() { mascote.classList.remove('falando'); }, 1000);
+  }
+  
+  falarTexto(palavra);
+  estatisticas.palavrasFaladas++;
+  verificarConquistas();
+}
+
+function atualizarDisplay() {
+  var display = document.getElementById('display');
+  if(fraseAtual.length === 0) {
+    display.textContent = 'Clique nos botões para formar frases';
+  } else {
+    display.textContent = fraseAtual.join(' → ');
+  }
+}
+
+function falar() {
+  if(fraseAtual.length > 0) {
+    var texto = fraseAtual.join(', ');
+    falarTexto(texto);
+    mostrarToast('🔊 Falando: ' + texto);
+    registrarMensagem('fala', 'Frase: ' + texto);
+  }
+}
+
+function desfazer() {
+  if(fraseAtual.length > 0) {
+    fraseAtual.pop();
+    atualizarDisplay();
+  }
+}
+
+function limpar() {
+  fraseAtual = [];
+  atualizarDisplay();
+}
+
+function falarTexto(texto) {
+  if('speechSynthesis' in window) {
+    var utterance = new SpeechSynthesisUtterance(texto);
+    utterance.lang = 'pt-BR';
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+function mostrarToast(msg) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 3000);
+}
+
+// ========== ROTINAS ==========
+function renderRotinas() {
+  var html = '<h3 style="color:#2C3E50;margin-bottom:10px">📋 Minhas Rotinas</h3>';
+  for(var i = 0; i < rotinas.length; i++) {
+    html += '<div class="rotina-card">';
+    html += '<h4><span class="numero">' + (i+1) + '</span>' + rotinas[i].emoji + ' ' + rotinas[i].nome + '</h4>';
+    html += '<div class="rotina-passos">';
+    for(var j = 0; j < rotinas[i].passos.length; j++) {
+      html += '<div class="rotina-passo" id="passo' + i + '_' + j + '"><span class="emoji">' + rotinas[i].passos[j].emoji + '</span><span class="texto">' + rotinas[i].passos[j].texto + '</span></div>';
+    }
+    html += '</div>';
+    html += '<div class="rotina-progresso"><div class="rotina-progresso-barra" id="progresso' + i + '"></div></div>';
+    html += '<button class="card-btn" style="background:#3498DB;margin-top:10px" onclick="iniciarRotina(' + i + ')">▶️ Iniciar Rotina</button>';
+    html += '</div>';
+  }
+  document.getElementById('content').innerHTML = html;
+}
+
+function iniciarRotina(index) {
+  rotinaAtiva = index;
+  passoAtual = 0;
+  atualizarRotina();
+  falarTexto('Vamos começar a rotina: ' + rotinas[index].nome);
+  registrarMensagem('rotina', 'Iniciou: ' + rotinas[index].nome);
+}
+
+function atualizarRotina() {
+  if(rotinaAtiva === null) return;
+  
+  var rotina = rotinas[rotinaAtiva];
+  var total = rotina.passos.length;
+  
+  for(var i = 0; i < total; i++) {
+    var passo = document.getElementById('passo' + rotinaAtiva + '_' + i);
+    if(passo) {
+      passo.classList.remove('ativo', 'concluido');
+      if(i < passoAtual) passo.classList.add('concluido');
+      else if(i === passoAtual) passo.classList.add('ativo');
+    }
+  }
+  
+  var progresso = (passoAtual / total) * 100;
+  document.getElementById('progresso' + rotinaAtiva).style.width = progresso + '%';
+  
+  if(passoAtual < total) {
+    var passo = rotina.passos[passoAtual];
+    falarTexto('Agora vamos: ' + passo.texto);
+    mostrarToast('⏱️ ' + passo.texto + ' - ' + passo.tempo + ' min');
+    
+    setTimeout(function() {
+      passoAtual++;
+      if(passoAtual <= total) atualizarRotina();
+    }, passo.tempo * 1000);
+  } else {
+    falarTexto('Rotina concluída! Parabéns!');
+    mostrarToast('🎉 Rotina concluída!');
+    estatisticas.rotinasConcluidas++;
+    salvarEstatisticas();
+    registrarMensagem('rotina', 'Concluiu: ' + rotinas[rotinaAtiva].nome);
+    verificarConquistas();
+    rotinaAtiva = null;
+  }
+}
+
+// ========== TREINO DE FALA ==========
+function renderTreino() {
+  var html = '<h3 style="color:#2C3E50;margin-bottom:10px">🎯 Treino de Fala</h3>';
+  
+  html += '<div class="treino-categoria">';
+  html += '<button class="treino-cat-btn ' + (categoriaTreino === 'basico' ? 'ativa' : '') + '" onclick="mudarCategoria(\'basico\')">Básico</button>';
+  html += '<button class="treino-cat-btn ' + (categoriaTreino === 'intermediario' ? 'ativa' : '') + '" onclick="mudarCategoria(\'intermediario\')">Intermediário</button>';
+  html += '<button class="treino-cat-btn ' + (categoriaTreino === 'avancado' ? 'ativa' : '') + '" onclick="mudarCategoria(\'avancado\')">Avançado</button>';
+  html += '</div>';
+  
+  var palavra = palavrasTreino[categoriaTreino][treinoAtual];
+  
+  html += '<div class="treino-card">';
+  html += '<div class="treino-palavra">' + palavra.emoji + ' ' + palavra.palavra + '</div>';
+  html += '<div class="treino-fonema">' + palavra.fonema + '</div>';
+  html += '<div class="treino-dica">💡 ' + palavra.dica + '</div>';
+  html += '<div class="onda-fala parado" id="ondaFala"><div class="onda-barra"></div><div class="onda-barra"></div><div class="onda-barra"></div><div class="onda-barra"></div><div class="onda-barra"></div></div>';
+  html += '<div class="treino-botoes">';
+  html += '<button class="treino-btn-ouvir" onclick="ouvirPalavra()">🔊 OUVIR</button>';
+  html += '<button class="treino-btn-repetir" onclick="repetirPalavra()">🎤 REPETIR</button>';
+  html += '<button class="treino-btn-proxima" onclick="proximaPalavra()">➡️ PRÓXIMA</button>';
+  html += '</div>';
+  html += '<div class="treino-nivel">';
+  for(var i = 0; i < 3; i++) {
+    html += '<span class="treino-estrela" id="estrela' + i + '">⭐</span>';
+  }
+  html += '</div>';
+  html += '<div class="treino-feedback neutro" id="feedbackTreino">Clique em OUVIR para começar!</div>';
+  html += '</div>';
+  
+  html += '<div class="gravador-area">';
+  html += '<button class="gravador-btn" id="btnGravar" onclick="toggleGravar()">🎤</button>';
+  html += '<div class="gravador-texto">Toque para gravar sua voz</div>';
+  html += '<div class="gravador-resultado" id="resultadoGravar"></div>';
+  html += '</div>';
+  
+  document.getElementById('content').innerHTML = html;
+}
+
+function mudarCategoria(cat) {
+  categoriaTreino = cat;
+  treinoAtual = 0;
+  renderTreino();
+}
+
+function ouvirPalavra() {
+  var palavra = palavrasTreino[categoriaTreino][treinoAtual];
+  falarTexto(palavra.palavra);
+  
+  var onda = document.getElementById('ondaFala');
+  onda.classList.remove('parado');
+  setTimeout(function() { onda.classList.add('parado'); }, 2000);
+  
+  document.getElementById('feedbackTreino').textContent = 'Ouça com atenção e repita!';
+  document.getElementById('feedbackTreino').className = 'treino-feedback neutro';
+}
+
+function repetirPalavra() {
+  var feedback = document.getElementById('feedbackTreino');
+  feedback.textContent = '🎉 Muito bem! Você conseguiu!';
+  feedback.className = 'treino-feedback acerto';
+  
+  for(var i = 0; i < 3; i++) {
+    document.getElementById('estrela' + i).classList.add('ativa');
+  }
+  
+  estatisticas.treinosCompletados++;
+  verificarConquistas();
+  
+  setTimeout(function() {
+    falarTexto('Muito bem! Você está indo super bem!');
+  }, 500);
+}
+
+function proximaPalavra() {
+  treinoAtual++;
+  if(treinoAtual >= palavrasTreino[categoriaTreino].length) {
+    treinoAtual = 0;
+  }
+  renderTreino();
+}
+
+function toggleGravar() {
+  var btn = document.getElementById('btnGravar');
+  var resultado = document.getElementById('resultadoGravar');
+  
+  if(btn.classList.contains('gravando')) {
+    btn.classList.remove('gravando');
+    btn.textContent = '🎤';
+    resultado.textContent = '✅ Gravação concluída!';
+    setTimeout(function() { resultado.textContent = ''; }, 2000);
+  } else {
+    btn.classList.add('gravando');
+    btn.textContent = '⏹️';
+    resultado.textContent = '🎙️ Gravando...';
+    
+    setTimeout(function() {
+      var palavra = palavrasTreino[categoriaTreino][treinoAtual].palavra;
+      resultado.textContent = '🎯 Você disse: ' + palavra;
+      btn.classList.remove('gravando');
+      btn.textContent = '🎤';
+      
+      var feedback = document.getElementById('feedbackTreino');
+      feedback.textContent = '🎉 Excelente pronúncia!';
+      feedback.className = 'treino-feedback acerto';
+      
+      for(var i = 0; i < 3; i++) {
+        document.getElementById('estrela' + i).classList.add('ativa');
+      }
+      
+      estatisticas.treinosCompletados++;
+      salvarEstatisticas();
+      registrarMensagem('treino', 'Gravou: ' + palavrasTreino[categoriaTreino][treinoAtual].palavra);
+      verificarConquistas();
+    }, 3000);
+  }
+}
+
+// ========== IA FALAMIGO ==========
+function renderIA() {
+  var html = '<h3 style="color:#2C3E50;margin-bottom:10px">🤖 Falamigo IA</h3>';
+  
+  html += '<div class="ia-container">';
+  html += '<div class="ia-header">';
+  html += '<div class="ia-avatar"><video src="mascote.mp4" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;border-radius:50%"></video></div>';
+  html += '<div class="ia-info">';
+  html += '<h3>Falamigo IA</h3>';
+  html += '<p>Seu assistente de comunicação</p>';
+  html += '<div class="ia-status"><span class="ia-status-dot"></span>Online</div>';
+  html += '</div></div>';
+  
+  html += '<div class="ia-chat" id="iaChat">';
+  html += 'Olá! Sou o Falamigo! Estou aqui para ajudar você a se comunicar melhor. Posso ajudar com:<br><br>';
+  html += '📋 <b>Rotinas</b> - Organizar suas atividades diárias<br>';
+  html += '🎯 <b>Treino de Fala</b> - Praticar pronúncia<br>';
+  html += '💬 <b>Comunicação</b> - Formar frases<br>';
+  html += '❓ <b>Dúvidas</b> - Responder perguntas<br><br>';
+  html += 'Como posso ajudar hoje?';
+  html += '</div>';
+  
+  html += '<div class="ia-typing" id="iaTyping"><span>●</span><span>●</span><span>●</span> Digitando...</div>';
+  
+  html += '<div class="ia-input-area">';
+  html += '<input type="text" id="iaInput" placeholder="Digite sua mensagem..." onkeypress="if(event.keyCode===13)enviarMensagemIA()">';
+  html += '<button onclick="enviarMensagemIA()">📨</button>';
+  html += '</div>';
+  
+  html += '<div class="ia-suggestions">';
+  html += '<button class="ia-suggestion" onclick="mensagemRapida(\'Quero água\')">💧 Quero água</button>';
+  html += '<button class="ia-suggestion" onclick="mensagemRapida(\'Estou feliz\')">😊 Estou feliz</button>';
+  html += '<button class="ia-suggestion" onclick="mensagemRapida(\'Preciso de ajuda\')">🆘 Preciso ajuda</button>';
+  html += '<button class="ia-suggestion" onclick="mensagemRapida(\'Vamos treinar\')">🎯 Vamos treinar</button>';
+  html += '</div></div>';
+  
+  html += '<div class="stats-grid">';
+  html += '<div class="stat-card"><div class="icone">💬</div><div class="numero" id="statPalavras">' + estatisticas.palavrasFaladas + '</div><div class="label">Palavras Faladas</div></div>';
+  html += '<div class="stat-card"><div class="icone">🎯</div><div class="numero" id="statTreinos">' + estatisticas.treinosCompletados + '</div><div class="label">Treinos</div></div>';
+  html += '<div class="stat-card"><div class="icone">📋</div><div class="numero" id="statRotinas">' + estatisticas.rotinasConcluidas + '</div><div class="label">Rotinas</div></div>';
+  html += '<div class="stat-card"><div class="icone">🔥</div><div class="numero" id="statDias">' + estatisticas.diasConsecutivos + '</div><div class="label">Dias Seguidos</div></div>';
+  html += '</div>';
+  
+  html += '<div class="conquistas" id="conquistasArea">';
+  html += '<div class="conquista ' + (estatisticas.palavrasFaladas >= 10 ? 'desbloqueada' : '') + '">🏆</div>';
+  html += '<div class="conquista ' + (estatisticas.treinosCompletados >= 5 ? 'desbloqueada' : '') + '">⭐</div>';
+  html += '<div class="conquista ' + (estatisticas.rotinasConcluidas >= 3 ? 'desbloqueada' : '') + '">📋</div>';
+  html += '<div class="conquista ' + (estatisticas.diasConsecutivos >= 7 ? 'desbloqueada' : '') + '">🔥</div>';
+  html += '</div>';
+  
+  document.getElementById('content').innerHTML = html;
+}
+
+function enviarMensagemIA() {
+  var input = document.getElementById('iaInput');
+  var msg = input.value.trim();
+  if(!msg) return;
+  
+  var chat = document.getElementById('iaChat');
+  chat.innerHTML += '<br><br><b>Você:</b> ' + msg;
+  input.value = '';
+  
+  document.getElementById('iaTyping').classList.add('on');
+  
+  setTimeout(function() {
+    document.getElementById('iaTyping').classList.remove('on');
+    var resposta = gerarRespostaIA(msg);
+    chat.innerHTML += '<br><br><b>Falamigo:</b> ' + resposta;
+    falarTexto(resposta.replace(/🦕|😊|🌟|📋|🎯|🆘|🤔|📚|🎉/g, ''));
+    chat.scrollTop = chat.scrollHeight;
+  }, 1500);
+}
+
+function mensagemRapida(msg) {
+  document.getElementById('iaInput').value = msg;
+  enviarMensagemIA();
+}
+
+function gerarRespostaIA(msg) {
+  var lower = msg.toLowerCase();
+  for(var key in respostasIA) {
+    if(lower.indexOf(key) !== -1) {
+      var respostas = respostasIA[key];
+      return respostas[Math.floor(Math.random() * respostas.length)];
+    }
+  }
+  return respostasIA['default'][Math.floor(Math.random() * respostasIA['default'].length)];
+}
+
+function togglePainelIA() {
+  var painel = document.getElementById('painelIA');
+  painel.classList.toggle('on');
+  var notif = document.getElementById('notifIA');
+  if(notif) notif.style.display = 'none';
+}
+
+function acaoIA(tipo) {
+  togglePainelIA();
+  switch(tipo) {
+    case 'rotina': mostrarSecao('rotinas'); break;
+    case 'treino': mostrarSecao('treino'); break;
+    case 'animar': 
+      falarTexto('Você é incrível! Continue assim!');
+      mostrarToast('🦕 Falamigo te animou!');
+      break;
+    case 'ajuda': 
+      mostrarSecao('ia');
+      break;
+  }
+}
+
+// ========== CONFIGURAÇÕES ==========
+function renderConfig() {
+  var html = '<h3 style="color:#2C3E50;margin-bottom:10px">⚙️ Configurações</h3>';
+  
+  html += '<div class="config-section">';
+  html += '<h4>🎵 Áudio</h4>';
+  html += '<div class="config-item"><label>Velocidade da fala</label><input type="range" min="0.5" max="1.5" step="0.1" value="0.9" id="velocidadeFala"></div>';
+  html += '<div class="config-item"><label>Volume</label><input type="range" min="0" max="1" step="0.1" value="1" id="volumeFala"></div>';
+  html += '</div>';
+  
+  html += '<div class="config-section">';
+  html += '<h4>🎨 Aparência</h4>';
+  html += '<div class="config-item"><label>Tamanho dos botões</label><input type="range" min="0.8" max="1.3" step="0.1" value="1" id="tamanhoBotoes"></div>';
+  html += '<div class="config-item"><label>Mostrar emoji</label><div class="toggle ativo" onclick="toggleConfig(this)"></div></div>';
+  html += '</div>';
+  
+  html += '<div class="config-section">';
+  html += '<h4>🤖 IA</h4>';
+  html += '<div class="config-item"><label>Sugestões automáticas</label><div class="toggle ativo" onclick="toggleConfig(this)"></div></div>';
+  html += '<div class="config-item"><label>Notificações</label><div class="toggle ativo" onclick="toggleConfig(this)"></div></div>';
+  html += '</div>';
+  
+  html += '<div class="config-section">';
+  html += '<h4>📊 Dados</h4>';
+  html += '<button class="card-btn" style="background:#3498DB;width:100%;margin-bottom:10px" onclick="exportarDados()">📥 Exportar Progresso</button>';
+  html += '<button class="card-btn" style="background:#E74C3C;width:100%" onclick="resetarDados()">🗑️ Resetar Dados</button>';
+  html += '</div>';
+
+  var codigoFam = gerarCodigoFamilia() || '---';
+  html += '<div class="config-section">';
+  html += '<h4>👨‍👩‍👧 Para os Pais</h4>';
+  html += '<p style="font-size:.85rem;color:#666;margin-bottom:10px;text-align:center">Código da família:<br><b style="color:#667eea;font-size:1.4rem;letter-spacing:3px">' + codigoFam + '</b></p>';
+  html += '<button class="card-btn" style="background:#764ba2;width:100%;margin-bottom:10px" onclick="abrirPainelPais()">👨‍👩‍👧 Abrir Painel dos Pais</button>';
+  html += '<p style="font-size:.75rem;color:#888;text-align:center">Use este código no celular dos pais para conectar</p>';
+  html += '</div>';
+
+  document.getElementById('content').innerHTML = html;
+}
+
+function toggleConfig(el) {
+  el.classList.toggle('ativo');
+}
+
+function exportarDados() {
+  var dados = {
+    nome: nomeUsuario,
+    estatisticas: estatisticas,
+    conquistas: conquistas,
+    data: new Date().toISOString()
+  };
+  var blob = new Blob([JSON.stringify(dados, null, 2)], {type: 'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'falamigo_progresso.json';
+  a.click();
+  mostrarToast('📥 Progresso exportado!');
+}
+
+function resetarDados() {
+  if(confirm('Tem certeza que deseja resetar todos os dados?')) {
+    estatisticas = { palavrasFaladas: 0, treinosCompletados: 0, rotinasConcluidas: 0, diasConsecutivos: 1 };
+    conquistas = [];
+    mostrarToast('🗑️ Dados resetados!');
+    renderConfig();
+  }
+}
+
+// ========== CONQUISTAS ==========
+function verificarConquistas() {
+  if(estatisticas.palavrasFaladas >= 10 && conquistas.indexOf('iniciante') === -1) {
+    conquistas.push('iniciante');
+    mostrarToast('🏆 Conquista: Comunicador Iniciante!');
+  }
+  if(estatisticas.treinosCompletados >= 5 && conquistas.indexOf('treinador') === -1) {
+    conquistas.push('treinador');
+    mostrarToast('⭐ Conquista: Treinador de Fala!');
+  }
+  if(estatisticas.rotinasConcluidas >= 3 && conquistas.indexOf('organizado') === -1) {
+    conquistas.push('organizado');
+    mostrarToast('📋 Conquista: Super Organizado!');
+  }
+}
+
+// ========== SOS ==========
+function sos() {
+  falarTexto('Preciso de ajuda! Por favor, me ajude!');
+  mostrarToast('🚨 MENSAGEM DE EMERGÊNCIA ENVIADA!');
+  
+  var mascote = document.getElementById('mascoteIA');
+  mascote.classList.add('pulando');
+  setTimeout(function() { mascote.classList.remove('pulando'); }, 3000);
+}
+
+// ========== INICIALIZAÇÃO ==========
+window.onload = function() {
+  var dadosSalvos = localStorage.getItem('falamigo_dados');
+  if(dadosSalvos) {
+    var dados = JSON.parse(dadosSalvos);
+    if(dados.estatisticas) estatisticas = dados.estatisticas;
+    if(dados.conquistas) conquistas = dados.conquistas;
+  }
+};
+
+window.onbeforeunload = function() {
+  salvarEstatisticas();
+  localStorage.setItem('falamigo_dados', JSON.stringify({
+    estatisticas: estatisticas,
+    conquistas: conquistas
+  }));
+};
+</script>
+</body>
+</html>
